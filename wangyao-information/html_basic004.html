@@ -6,10 +6,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>我的第一个网页</title>
+<link rel="stylesheet" href="./html_basic.css">
+     
 </head>
 
 <body>
-    <h2>1.标题</h2>
+    <h2 class="title-demo">1.标题</h2>
     <!-- 一共6级标题h1-h6 -->
     <h1>一级标题</h1>
     <h2>二级标题</h2>
@@ -17,19 +19,19 @@
     <h4>四级标题</h4>
     <h5>五级标题</h5>
     <h6>六级标题，最小的标题</h6>
-    <h2>2.段落</h2>
-    <p>
+    <h2 class="title-demo">2.段落</h2>
+    <p class="text-cont">段落的特点：段落内容自动换行，有自带的间距。</p>
         <!-- 常用的强调的两种方式：斜体em和加粗strong,下划线u,删除线s -->
         段落的<em>特点</em>：段落内容<strong>自动换行</strong>，<br>
         有<u>自带</u>的间距。<s>需要删除的</s>
     </p>
     <hr>
-    <h2>3.超链接和图片</h2>
+    <h2 class="title-demo">3.超链接和图片</h2>
     <a href="http://baidu.com" target="_blank">百度</a>
     <img src="./img/1.jpg" alt="百度logo">
-    <h2>4.列表</h2>
+    <h2 class="title-demo">4.列表</h2>
     <h3>我喜欢做的事情</h3>
-    <ul>
+    <ul class="list-demo" >
         <li>打游戏</li>
         <li>看电影</li>
         <li>看书</li>
@@ -39,10 +41,10 @@
         <li>英语</li>
         <li>语文</li>
     </ol>
-    <h2>5.表格</h2>
+    <h2 class="title-demo">5.表格</h2>
     <!-- cellspacing是单元格之间的距离，
      cellpadding="3"是单元格内容与边框之间的距离 -->
-    <table border="2" cellspacing="0" cellpadding="3">
+    <table id="user-table" border="2" cellspacing="0" cellpadding="3">
         <caption>用户信息表</caption>
         <!-- （tr>td*3）*4回车 实现的是三行四列的表格 -->
         <tr>
@@ -64,17 +66,17 @@
             <td>上海</td>
         </tr>
     </table>
-    <h2>6.div块级元素</h2>
-    <div style="background:yellow;">
+    <h2 class="title-demo">6.div块级元素</h2>
+    <div>
 
         <p>div特点1：独占一整行，自动前后换行，是块级元素</p>
         <p>div特点2：可以嵌套任意标签（标题、段落、图片、列表都能放）</p>
     </div>
-    <div style="background:pink;">
+    <div>
         <p>div特点1：独占一整行，自动前后换行，是块级元素</p>
         <p>div特点2：可以嵌套任意标签（标题、段落、图片、列表都能放）</p>
     </div>
-    <h2>H5语义</h2>
+    <h2 class="title-demo">H5语义</h2>
     <!-- header、nav、section、article、footer、aside本质上都是div -->
     <header>头部</header>
     <nav>导航条</nav>
@@ -82,7 +84,7 @@
     <article>文章区域</article>
     <footer>页脚</footer>
     <aside>侧边栏</aside>
-    <h2>基础表单+H5表单</h2>
+    <h2 class="title-demo"  >基础表单+H5表单</h2>
 
     <form action="http://baidu.com" name="fm" method="post">
         <p>用户名：
@@ -137,7 +139,7 @@
         </p>
 
     </form>
-    <button>
+    <button class="btn">
         表单外的按钮 
     </button>
 
