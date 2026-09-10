@@ -1,0 +1,63 @@
+/* CSS选择器分类：
+    （1）标签选择器（一般全局CSS用）
+    （2）类选择器
+    （3）id选择器
+    （4）后代选择器
+    （5）群组选择器  */
+
+/* 全局css：通配符选择器，清除所有元素默认外边距、内边距 */
+*{
+    margin: 0;
+    padding: 0;
+}
+
+/* 标签选择器：清除无序列表默认小圆点 */
+ul{
+    list-style: none;
+}
+
+/* 标签选择器：清除超链接默认下划线，设置文字基础颜色 */
+a{
+    text-decoration: none;
+    color: black;
+}
+
+/* 标签选择器：图片特殊为行内块元素，可设置宽高边框；清除图片默认边框，转为块级元素 */
+img{
+    border: none;
+    display: block;
+}
+
+/* 类选择器：给class="title-demo"的元素设置样式 */
+.title-demo{
+    color: red;        /* 文字红色 */
+    background: yellow;/* 背景黄色 */
+    padding: 10px 20px ;/* 内边距：上下10px，左右20px */
+    border: 1px solid black;/* 黑色实线边框 */
+}
+
+/* id选择器：匹配id="user-table"唯一元素 */
+#user-table{
+    width: 500px;                /* 表格宽度500px */
+    border: 1px solid blue;      /* 蓝色实线边框 */
+    /* margin和padding两个值分别是上下和左右 */
+    margin: 0 auto;              /* 上下外边距0，左右自动，实现水平居中 */
+}
+
+/* 后代选择器：选中id为user-table内部的caption子元素 */
+#user-table caption{
+    color: yellow;     /* 标题文字黄色 */
+    font-size: 50px;   /* 字号50px */
+    font-weight: bold; /* 文字加粗 */
+}
+
+/* 群组选择器：同时给ol、ul、class为text-cont这三类元素统一设置样式 */
+ol,ul,.text-cont{
+    margin: 10px 0;    /* 上下外边距10px，左右0 */
+    padding: 10px;     /* 四周内边距10px */
+    color: purple;     /* 文字紫色 */
+}
+/* 伪类*/
+.btn{
+    background: red;
+}
