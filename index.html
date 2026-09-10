@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="倪铭浩的《高级网页设计》课堂实践目录">
+    <title>高级网页设计 · 课堂实践目录</title>
+    <style>
+        :root {
+            --ink: #18212b;
+            --muted: #687582;
+            --paper: #f6f3ed;
+            --panel: #fffdf8;
+            --line: #d9d2c5;
+            --accent: #d95f39;
+            --accent-dark: #9d3e25;
+            --blue: #2c596b;
+            --shadow: 0 18px 45px rgba(42, 36, 28, .12);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            margin: 0;
+            color: var(--ink);
+            background:
+                radial-gradient(circle at 9% 12%, rgba(217, 95, 57, .13) 0 2px, transparent 3px),
+                linear-gradient(135deg, rgba(44, 89, 107, .06) 1px, transparent 1px),
+                var(--paper);
+            background-size: 28px 28px, 22px 22px, auto;
+            font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+            line-height: 1.7;
+        }
+
+        a {
+            color: inherit;
+        }
+
+        .page-shell {
+            width: min(1120px, calc(100% - 40px));
+            margin: 0 auto;
+        }
+
+        .topbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 26px 0;
+            border-bottom: 1px solid var(--line);
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 14px;
+            font-weight: 700;
+            letter-spacing: .08em;
+        }
+
+        .brand-mark {
+            display: grid;
+            width: 36px;
+            height: 36px;
+            place-items: center;
+            color: #fffdf8;
+            background: var(--accent);
+            border-radius: 50% 50% 50% 8px;
+            font-family: Georgia, serif;
+            font-size: 20px;
+        }
+
+        .topbar nav {
+            display: flex;
+            gap: 24px;
+            color: var(--muted);
+            font-size: 13px;
+        }
+
+        .topbar nav a {
+            text-decoration: none;
+        }
+
+        .topbar nav a:hover,
+        .topbar nav a:focus-visible {
+            color: var(--accent-dark);
+        }
+
+        .hero {
+            display: grid;
+            grid-template-columns: minmax(0, 1.3fr) minmax(280px, .7fr);
+            gap: 70px;
+            align-items: end;
+            padding: 92px 0 84px;
+        }
+
+        .eyebrow {
+            margin: 0 0 18px;
+            color: var(--accent-dark);
+            font-size: 12px;
+            font-weight: 800;
+            letter-spacing: .18em;
+            text-transform: uppercase;
+        }
+
+        h1 {
+            max-width: 740px;
+            margin: 0;
+            font-family: Georgia, "STSong", serif;
+            font-size: clamp(42px, 7vw, 78px);
+            font-weight: 400;
+            letter-spacing: -.04em;
+            line-height: 1.05;
+        }
+
+        .hero-copy {
+            max-width: 600px;
+            margin: 26px 0 0;
+            color: var(--muted);
+            font-size: 17px;
+        }
+
+        .hero-note {
+            padding: 24px 26px;
+            border-left: 4px solid var(--accent);
+            background: rgba(255, 253, 248, .7);
+            box-shadow: var(--shadow);
+        }
+
+        .hero-note strong {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--blue);
+            font-family: Georgia, "STSong", serif;
+            font-size: 28px;
+            font-weight: 400;
+        }
+
+        .hero-note p {
+            margin: 0;
+            color: var(--muted);
+            font-size: 14px;
+        }
+
+        .section-heading {
+            display: flex;
+            align-items: end;
+            justify-content: space-between;
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+
+        .section-heading h2 {
+            margin: 0;
+            font-family: Georgia, "STSong", serif;
+            font-size: 32px;
+            font-weight: 400;
+        }
+
+        .section-heading p {
+            margin: 0;
+            color: var(--muted);
+            font-size: 13px;
+        }
+
+        .modules {
+            padding: 0 0 88px;
+        }
+
+        .module-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 18px;
+        }
+
+        .module-card {
+            position: relative;
+            display: flex;
+            min-height: 250px;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 26px;
+            border: 1px solid var(--line);
+            background: var(--panel);
+            box-shadow: 0 8px 22px rgba(42, 36, 28, .04);
+            transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease;
+        }
+
+        .module-card:hover {
+            border-color: var(--accent);
+            box-shadow: var(--shadow);
+            transform: translateY(-5px);
+        }
+
+        .module-card.featured {
+            color: #fffdf8;
+            background: var(--blue);
+            border-color: var(--blue);
+        }
+
+        .module-number {
+            color: var(--accent);
+            font-family: Georgia, serif;
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+        .featured .module-number {
+            color: #f2b29c;
+        }
+
+        .module-card h3 {
+            margin: 14px 0 8px;
+            font-family: Georgia, "STSong", serif;
+            font-size: 26px;
+            font-weight: 400;
+        }
+
+        .module-card p {
+            margin: 0;
+            color: var(--muted);
+            font-size: 14px;
+        }
+
+        .featured p {
+            color: rgba(255, 253, 248, .72);
+        }
+
+        .module-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            width: fit-content;
+            margin-top: 25px;
+            color: var(--accent-dark);
+            font-size: 13px;
+            font-weight: 800;
+            text-decoration: none;
+        }
+
+        .featured .module-link {
+            color: #f8c0a9;
+        }
+
+        .module-link::after {
+            content: "→";
+            font-size: 18px;
+            transition: transform .2s ease;
+        }
+
+        .module-link:hover::after {
+            transform: translateX(4px);
+        }
+
+        .prompt-section {
+            display: grid;
+            grid-template-columns: .7fr 1.3fr;
+            gap: 50px;
+            padding: 42px 0 76px;
+            border-top: 1px solid var(--line);
+        }
+
+        .prompt-section h2 {
+            margin: 0;
+            font-family: Georgia, "STSong", serif;
+            font-size: 30px;
+            font-weight: 400;
+        }
+
+        .prompt-box {
+            margin: 0;
+            padding: 24px 28px;
+            color: var(--blue);
+            background: rgba(255, 253, 248, .72);
+            border: 1px solid var(--line);
+            font-size: 15px;
+        }
+
+        footer {
+            display: flex;
+            justify-content: space-between;
+            gap: 20px;
+            padding: 22px 0 30px;
+            border-top: 1px solid var(--line);
+            color: var(--muted);
+            font-size: 12px;
+        }
+
+        @media (max-width: 760px) {
+            .page-shell {
+                width: min(100% - 28px, 600px);
+            }
+
+            .topbar {
+                align-items: flex-start;
+                gap: 18px;
+            }
+
+            .topbar nav {
+                gap: 12px;
+                flex-wrap: wrap;
+                justify-content: flex-end;
+            }
+
+            .hero {
+                grid-template-columns: 1fr;
+                gap: 38px;
+                padding: 66px 0 62px;
+            }
+
+            .hero-copy {
+                font-size: 16px;
+            }
+
+            .section-heading {
+                align-items: flex-start;
+                flex-direction: column;
+                gap: 8px;
+            }
+
+            .module-grid,
+            .prompt-section {
+                grid-template-columns: 1fr;
+            }
+
+            .modules {
+                padding-bottom: 62px;
+            }
+
+            .prompt-section {
+                gap: 24px;
+            }
+
+            footer {
+                flex-direction: column;
+                gap: 4px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="page-shell">
+        <header class="topbar">
+            <a class="brand" href="index.html" aria-label="返回课堂实践首页">
+                <span class="brand-mark">W</span>
+                <span>倪铭浩 / WEB PRACTICE</span>
+            </a>
+            <nav aria-label="页面导航">
+                <a href="#modules">课堂目录</a>
+                <a href="#prompt">本次提示</a>
+            </nav>
+        </header>
+
+        <main>
+            <section class="hero" aria-labelledby="page-title">
+                <div>
+                    <p class="eyebrow">Advanced Web Design · 2026</p>
+                    <h1 id="page-title">高级网页设计<br>课堂实践</h1>
+                    <p class="hero-copy">这里记录倪铭浩在《高级网页设计》课程中的网页练习。从 HTML 结构开始，逐步建立属于自己的前端作品目录。</p>
+                </div>
+                <aside class="hero-note">
+                    <strong>从一页开始</strong>
+                    <p>每一次练习都是下一次创作的素材。选择一个模块，进入对应的课堂页面。</p>
+                </aside>
+            </section>
+
+            <section class="modules" id="modules" aria-labelledby="modules-title">
+                <div class="section-heading">
+                    <h2 id="modules-title">课堂目录</h2>
+                    <p>已完成 01 · 持续更新中</p>
+                </div>
+                <div class="module-grid">
+                    <article class="module-card featured">
+                        <div>
+                            <span class="module-number">01 / HTML</span>
+                            <h3>HTML 基础</h3>
+                            <p>标题、段落、列表、表格、表单与语义化标签的综合实践。</p>
+                        </div>
+                        <a class="module-link" href="html_basic001.html">进入实践页</a>
+                    </article>
+
+                    <article class="module-card">
+                        <div>
+                            <span class="module-number">02 / PROFILE</span>
+                            <h3>自我介绍网页</h3>
+                            <p>使用 HTML 组织个人信息，完成第一个可访问的个人介绍页面。</p>
+                        </div>
+                        <a class="module-link" href="html_self.html">查看网页</a>
+                    </article>
+
+                    <article class="module-card">
+                        <div>
+                            <span class="module-number">03 / NEXT</span>
+                            <h3>后续模块</h3>
+                            <p>CSS 美化、页面布局与交互实践将在课程推进后陆续加入。</p>
+                        </div>
+                        <a class="module-link" href="#prompt">查看说明</a>
+                    </article>
+                </div>
+            </section>
+
+            <section class="prompt-section" id="prompt" aria-labelledby="prompt-title">
+                <h2 id="prompt-title">本次页面提示</h2>
+                <p class="prompt-box">创建一个新页面，包括本目录下的所有网页的超链接，使用原生代码，不使用cdn，新页面名称为index.html，主题为倪铭浩的《高级网页设计》课堂实践，美化页面，课堂目录中包含HTML基础、自我介绍网页、其余模块后续在增加。页面中包括本提示词。</p>
+            </section>
+        </main>
+
+        <footer>
+            <span>倪铭浩的《高级网页设计》课堂实践</span>
+            <span>© 2026 · Local HTML Project</span>
+        </footer>
+    </div>
+</body>
+
+</html>
