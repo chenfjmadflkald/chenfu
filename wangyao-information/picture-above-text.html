@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        .container{
+            width: 1000px;
+            margin: 0 auto;
+        }
+        .list{
+            list-style: none;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+                 gap:10px;
+        }
+        .list li{
+           flex: 1;
+           width:250px;
+           /* 图片间距设定10px */
+        }
+        .list li a{
+            display: block;
+            text-decoration: none;
+        }
+       
+        .list li a p{
+            text-align: center;
+        }
+    
+    </style>
+</head>
+<body>
+    <div class="container">
+    <h2>上图下文</h2>
+    <ul class="list">
+        <li><a href="#"><img src="./img/1.jpg" alt=""><p >图片描述1</p></a></li>
+        <li><a href="#"><img src="./img/2.jpg" alt=""><p >图片描述2</p></a></li>
+        <li><a href="#"><img src="./img/3.jpg" alt=""><p>图片描述3</p></a></li>
+        <li><a href="#"><img src="./img/4.jpg" alt=""><p>图片描述4</p></a></li>
+        <li><a href="#"><img src="./img/5.jpg" alt=""><p>图片描述5</p></a></li>
+        <li><a href="#"><img src="./img/6.jpg" alt=""><p>图片描述6</p></a></li>
+    </ul>
+    </div>
+</body>
+</html>
