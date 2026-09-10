@@ -1,0 +1,926 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>高级网页设计 · 课堂实践 | 申家硕</title>
+    <meta name="description" content="申家硕《高级网页设计》课堂实践作品集首页，收录 HTML 基础、自我介绍网页等课堂练习。">
+    <style>
+        /* ==========================================================
+           申家硕《高级网页设计》课堂实践 · 首页
+           纯原生 HTML + CSS + JS，不依赖任何 CDN 或外部资源
+           ========================================================== */
+
+        :root {
+            --ink: #16202e;
+            --ink-soft: #40506a;
+            --ink-faint: #7c8aa3;
+            --paper: #f6f4ef;
+            --card: #ffffff;
+            --line: #e4e0d8;
+            --accent: #1f4fd8;
+            --accent-soft: #e8eefe;
+            --warm: #d97a3c;
+            --green: #2f8f6b;
+            --radius: 16px;
+            --shadow-sm: 0 1px 2px rgba(22, 32, 46, .05), 0 6px 18px -12px rgba(22, 32, 46, .18);
+            --shadow-md: 0 2px 4px rgba(22, 32, 46, .05), 0 22px 48px -28px rgba(22, 32, 46, .35);
+            --maxw: 1120px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB",
+                "Microsoft YaHei", "Noto Sans SC", "Helvetica Neue", Arial, sans-serif;
+            color: var(--ink);
+            background-color: var(--paper);
+            line-height: 1.7;
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+        }
+
+        /* 纸张纹理 + 光晕背景，纯 CSS 生成 */
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            z-index: -1;
+            background:
+                radial-gradient(760px 520px at 12% -6%, rgba(31, 79, 216, .12), transparent 62%),
+                radial-gradient(680px 480px at 96% 4%, rgba(217, 122, 60, .13), transparent 60%),
+                radial-gradient(900px 620px at 50% 108%, rgba(47, 143, 107, .10), transparent 62%),
+                var(--paper);
+        }
+
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        img {
+            display: block;
+            max-width: 100%;
+        }
+
+        ::selection {
+            background: var(--accent);
+            color: #fff;
+        }
+
+        .wrap {
+            width: 100%;
+            max-width: var(--maxw);
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        /* ---------------- 顶部导航 ---------------- */
+        .topbar {
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            backdrop-filter: saturate(180%) blur(14px);
+            -webkit-backdrop-filter: saturate(180%) blur(14px);
+            background: rgba(246, 244, 239, .78);
+            border-bottom: 1px solid var(--line);
+        }
+
+        .topbar .wrap {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            height: 62px;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 700;
+            letter-spacing: .2px;
+        }
+
+        .brand .mark {
+            width: 30px;
+            height: 30px;
+            border-radius: 9px;
+            display: grid;
+            place-items: center;
+            background: linear-gradient(135deg, var(--accent), #4f7ff0);
+            color: #fff;
+            font-size: 13px;
+            font-weight: 800;
+            box-shadow: 0 6px 16px -8px rgba(31, 79, 216, .9);
+        }
+
+        .brand small {
+            display: block;
+            font-size: 11px;
+            font-weight: 500;
+            color: var(--ink-faint);
+            letter-spacing: .6px;
+        }
+
+        .nav {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .nav a {
+            font-size: 14px;
+            color: var(--ink-soft);
+            padding: 8px 12px;
+            border-radius: 999px;
+            transition: background .2s ease, color .2s ease;
+        }
+
+        .nav a:hover {
+            background: var(--accent-soft);
+            color: var(--accent);
+        }
+
+        /* ---------------- 头图 ---------------- */
+        .hero {
+            padding: 76px 0 56px;
+        }
+
+        .hero .eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12.5px;
+            letter-spacing: 1.4px;
+            text-transform: uppercase;
+            color: var(--accent);
+            background: rgba(31, 79, 216, .09);
+            border: 1px solid rgba(31, 79, 216, .18);
+            padding: 6px 14px;
+            border-radius: 999px;
+            font-weight: 600;
+        }
+
+        .hero h1 {
+            margin: 22px 0 0;
+            font-size: clamp(38px, 6.4vw, 72px);
+            line-height: 1.06;
+            letter-spacing: -1.6px;
+            font-weight: 800;
+        }
+
+        .hero h1 .accent {
+            background: linear-gradient(120deg, var(--accent), #6d8ff5 55%, var(--warm));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .hero .lede {
+            margin-top: 20px;
+            max-width: 640px;
+            font-size: 17px;
+            color: var(--ink-soft);
+        }
+
+        .meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px 26px;
+            margin-top: 30px;
+            padding-top: 26px;
+            border-top: 1px solid var(--line);
+        }
+
+        .meta div {
+            min-width: 120px;
+        }
+
+        .meta dt {
+            font-size: 11.5px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            color: var(--ink-faint);
+        }
+
+        .meta dd {
+            font-size: 15.5px;
+            font-weight: 600;
+            color: var(--ink);
+        }
+
+        /* ---------------- 通用区块标题 ---------------- */
+        section {
+            padding: 46px 0;
+        }
+
+        .sec-head {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            gap: 18px;
+            flex-wrap: wrap;
+            margin-bottom: 30px;
+        }
+
+        .sec-head h2 {
+            font-size: clamp(24px, 3.2vw, 34px);
+            letter-spacing: -.6px;
+            font-weight: 800;
+        }
+
+        .sec-head p {
+            color: var(--ink-soft);
+            font-size: 15px;
+            margin-top: 6px;
+        }
+
+        .counter {
+            font-size: 13px;
+            color: var(--ink-faint);
+            font-variant-numeric: tabular-nums;
+            border: 1px solid var(--line);
+            background: var(--card);
+            border-radius: 999px;
+            padding: 6px 14px;
+            white-space: nowrap;
+        }
+
+        /* ---------------- 课程卡片 ---------------- */
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 22px;
+        }
+
+        .card {
+            position: relative;
+            background: var(--card);
+            border: 1px solid var(--line);
+            border-radius: var(--radius);
+            padding: 28px 26px 22px;
+            box-shadow: var(--shadow-sm);
+            overflow: hidden;
+            transition: transform .28s cubic-bezier(.2, .7, .3, 1), box-shadow .28s ease,
+                border-color .28s ease;
+        }
+
+        .card::after {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 3px;
+            width: 100%;
+            background: linear-gradient(90deg, var(--accent), var(--warm));
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform .4s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-md);
+            border-color: #d3d9e6;
+        }
+
+        .card:hover::after {
+            transform: scaleX(1);
+        }
+
+        .card-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .no {
+            font-size: 13px;
+            font-weight: 800;
+            letter-spacing: 1px;
+            color: var(--accent);
+            background: var(--accent-soft);
+            border-radius: 8px;
+            padding: 5px 11px;
+        }
+
+        .tag {
+            font-size: 11.5px;
+            letter-spacing: .6px;
+            text-transform: uppercase;
+            color: var(--ink-faint);
+            border: 1px solid var(--line);
+            border-radius: 999px;
+            padding: 4px 11px;
+        }
+
+        .card h3 {
+            margin-top: 18px;
+            font-size: 21px;
+            letter-spacing: -.3px;
+        }
+
+        .card .desc {
+            margin-top: 8px;
+            color: var(--ink-soft);
+            font-size: 14.6px;
+            min-height: 48px;
+        }
+
+        .links {
+            margin-top: 18px;
+            border-top: 1px dashed var(--line);
+            padding-top: 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .links a {
+            display: flex;
+            align-items: center;
+            gap: 11px;
+            padding: 11px 12px;
+            border-radius: 11px;
+            transition: background .2s ease, transform .2s ease;
+        }
+
+        .links a:hover {
+            background: #f3f6fd;
+            transform: translateX(3px);
+        }
+
+        .links .file-icon {
+            flex: none;
+            width: 34px;
+            height: 34px;
+            border-radius: 9px;
+            display: grid;
+            place-items: center;
+            background: var(--accent-soft);
+            color: var(--accent);
+            font-size: 10px;
+            font-weight: 800;
+            letter-spacing: .4px;
+        }
+
+        .links .t {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .links .t b {
+            display: block;
+            font-size: 14.6px;
+            font-weight: 600;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .links .t code {
+            display: block;
+            font-size: 11.6px;
+            color: var(--ink-faint);
+            font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .links .go {
+            flex: none;
+            color: var(--ink-faint);
+            transition: transform .2s ease, color .2s ease;
+        }
+
+        .links a:hover .go {
+            color: var(--accent);
+            transform: translateX(3px);
+        }
+
+        /* ---------------- 后续模块（占位） ---------------- */
+        .planned {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 18px;
+        }
+
+        .plan {
+            border: 1px dashed #cfd6e4;
+            border-radius: var(--radius);
+            padding: 22px 20px;
+            background:
+                repeating-linear-gradient(135deg, rgba(31, 79, 216, .035) 0 10px, transparent 10px 20px);
+            transition: border-color .25s ease, background .25s ease;
+        }
+
+        .plan:hover {
+            border-color: var(--accent);
+        }
+
+        .plan .ph-no {
+            font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+            font-size: 12.5px;
+            color: var(--ink-faint);
+        }
+
+        .plan h4 {
+            margin: 10px 0 6px;
+            font-size: 16.5px;
+        }
+
+        .plan p {
+            font-size: 13.6px;
+            color: var(--ink-soft);
+        }
+
+        .planned-note {
+            margin-top: 18px;
+            font-size: 13.6px;
+            color: var(--ink-faint);
+        }
+
+        .planned-note b {
+            color: var(--warm);
+        }
+
+        /* ---------------- 提示词区 ---------------- */
+        .prompt-wrap {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) 260px;
+            gap: 22px;
+            align-items: start;
+        }
+
+        .prompt-card {
+            position: relative;
+            background: #10182a;
+            border-radius: var(--radius);
+            padding: 26px 26px 22px;
+            color: #dfe6f5;
+            box-shadow: var(--shadow-md);
+            overflow: hidden;
+        }
+
+        .prompt-card::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(520px 260px at 85% -20%, rgba(79, 127, 240, .28), transparent 70%);
+            pointer-events: none;
+        }
+
+        .prompt-head {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 14px;
+            padding-bottom: 14px;
+            margin-bottom: 16px;
+            border-bottom: 1px solid rgba(255, 255, 255, .1);
+        }
+
+        .prompt-head .dots {
+            display: flex;
+            gap: 7px;
+        }
+
+        .prompt-head .dots i {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            display: block;
+        }
+
+        .prompt-head .dots i:nth-child(1) {
+            background: #ff5f57;
+        }
+
+        .prompt-head .dots i:nth-child(2) {
+            background: #febc2e;
+        }
+
+        .prompt-head .dots i:nth-child(3) {
+            background: #28c840;
+        }
+
+        .prompt-head span {
+            font-size: 12px;
+            letter-spacing: 1px;
+            color: #8fa0c0;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+        }
+
+        .prompt-card pre {
+            position: relative;
+            white-space: pre-wrap;
+            word-break: break-word;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+            font-size: 13.6px;
+            line-height: 1.85;
+            color: #eaf0ff;
+        }
+
+        .prompt-card pre mark {
+            background: rgba(255, 214, 130, .16);
+            color: #ffd98a;
+            border-radius: 4px;
+            padding: 1px 4px;
+        }
+
+        .copy {
+            position: relative;
+            margin-top: 18px;
+            font-size: 12.5px;
+            font-weight: 600;
+            color: #cfe0ff;
+            background: rgba(255, 255, 255, .08);
+            border: 1px solid rgba(255, 255, 255, .16);
+            border-radius: 999px;
+            padding: 8px 16px;
+            cursor: pointer;
+            transition: background .2s ease, transform .15s ease;
+        }
+
+        .copy:hover {
+            background: rgba(255, 255, 255, .16);
+        }
+
+        .copy:active {
+            transform: scale(.97);
+        }
+
+        .prompt-side {
+            background: var(--card);
+            border: 1px solid var(--line);
+            border-radius: var(--radius);
+            padding: 22px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .prompt-side h4 {
+            font-size: 15px;
+            margin-bottom: 14px;
+        }
+
+        .prompt-side ul {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .prompt-side li {
+            display: flex;
+            gap: 10px;
+            font-size: 13.8px;
+            color: var(--ink-soft);
+        }
+
+        .prompt-side li b {
+            color: var(--ink);
+            font-weight: 600;
+        }
+
+        .prompt-side .dot {
+            flex: none;
+            width: 6px;
+            height: 6px;
+            margin-top: 9px;
+            border-radius: 50%;
+            background: var(--accent);
+        }
+
+        .prompt-side .dot.o {
+            background: var(--warm);
+        }
+
+        .prompt-side .dot.g {
+            background: var(--green);
+        }
+
+        /* ---------------- 页脚 ---------------- */
+        footer {
+            margin-top: 40px;
+            border-top: 1px solid var(--line);
+            padding: 30px 0 46px;
+            color: var(--ink-faint);
+            font-size: 13.5px;
+        }
+
+        footer .wrap {
+            display: flex;
+            justify-content: space-between;
+            gap: 14px;
+            flex-wrap: wrap;
+        }
+
+        footer b {
+            color: var(--ink-soft);
+        }
+
+        /* ---------------- 入场动画 ---------------- */
+        .reveal {
+            opacity: 0;
+            transform: translateY(18px);
+            animation: rise .7s cubic-bezier(.2, .7, .3, 1) forwards;
+        }
+
+        @keyframes rise {
+            to {
+                opacity: 1;
+                transform: none;
+            }
+        }
+
+        .d1 { animation-delay: .05s; }
+        .d2 { animation-delay: .12s; }
+        .d3 { animation-delay: .19s; }
+        .d4 { animation-delay: .26s; }
+
+        @media (prefers-reduced-motion: reduce) {
+            .reveal {
+                opacity: 1;
+                transform: none;
+                animation: none;
+            }
+
+            html {
+                scroll-behavior: auto;
+            }
+        }
+
+        /* ---------------- 响应式 ---------------- */
+        @media (max-width: 900px) {
+            .prompt-wrap {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .hero {
+                padding: 52px 0 34px;
+            }
+
+            .nav {
+                display: none;
+            }
+
+            .wrap {
+                padding: 0 18px;
+            }
+
+            section {
+                padding: 34px 0;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- 顶部导航 -->
+    <header class="topbar">
+        <div class="wrap">
+            <div class="brand">
+                <span class="mark">高</span>
+                <span>高级网页设计
+                    <small>课堂实践 · 作品集</small>
+                </span>
+            </div>
+            <nav class="nav">
+                <a href="#catalog">课堂目录</a>
+                <a href="#planned">后续模块</a>
+                <a href="#prompt">本页提示词</a>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <!-- 头图 -->
+        <div class="wrap">
+            <div class="hero">
+                <span class="eyebrow reveal d1">2026 · 秋季学期 · 课堂练习</span>
+                <h1 class="reveal d2">申家硕《<span class="accent">高级网页设计</span>》<br>课堂实践</h1>
+                <p class="lede reveal d3">
+                    这里汇总了本课程每次课堂练习的成果页面。从最基础的 HTML 标签，
+                    到结构完整的自我介绍网页，都会以超链接形式收录在本页中，方便随堂演示与课后回看。
+                </p>
+                <dl class="meta reveal d4">
+                    <div>
+                        <dt>指导教师</dt>
+                        <dd>王垚</dd>
+                    </div>
+                    <div>
+                        <dt>课程名称</dt>
+                        <dd>高级网页设计</dd>
+                    </div>
+                    <div>
+                        <dt>练习人</dt>
+                        <dd>申家硕</dd>
+                    </div>
+                    <div>
+                        <dt>收录模块</dt>
+                        <dd>2 个</dd>
+                    </div>
+                </dl>
+            </div>
+        </div>
+
+        <!-- 课堂目录 -->
+        <section id="catalog">
+            <div class="wrap">
+                <div class="sec-head">
+                    <div>
+                        <h2>课堂目录</h2>
+                        <p>点击卡片中的任一链接，即可在本机浏览器中打开对应练习页面。</p>
+                    </div>
+                    <span class="counter">共 3 个页面 · 2 个模块</span>
+                </div>
+
+                <div class="cards">
+
+                    <!-- 模块一：HTML 基础 -->
+                    <article class="card reveal d1">
+                        <div class="card-top">
+                            <span class="no">模块 01</span>
+                            <span class="tag">HTML 基础</span>
+                        </div>
+                        <h3>HTML 基础练习</h3>
+                        <p class="desc">标题、段落、超链接与图片、列表、表格、div 块级元素、H5 语义标签以及基础表单与 H5 表单。</p>
+                        <div class="links">
+                            <a href="html_basic001.html">
+                                <span class="file-icon">HTML</span>
+                                <span class="t">
+                                    <b>我的第一个网页</b>
+                                    <code>html_basic001.html</code>
+                                </span>
+                                <span class="go">→</span>
+                            </a>
+                        </div>
+                    </article>
+
+                    <!-- 模块二：自我介绍网页 -->
+                    <article class="card reveal d2">
+                        <div class="card-top">
+                            <span class="no">模块 02</span>
+                            <span class="tag">自我介绍</span>
+                        </div>
+                        <h3>自我介绍网页</h3>
+                        <p class="desc">把 HTML 基础标签组合成一个完整页面，并用外部样式表练习标签、类、ID、后代与群组选择器。</p>
+                        <div class="links">
+                            <a href="自我介绍/自我介绍.html">
+                                <span class="file-icon">HTML</span>
+                                <span class="t">
+                                    <b>自我介绍（基础版）</b>
+                                    <code>自我介绍/自我介绍.html</code>
+                                </span>
+                                <span class="go">→</span>
+                            </a>
+                            <a href="自我介绍/自我介绍2.html">
+                                <span class="file-icon">HTML</span>
+                                <span class="t">
+                                    <b>自我介绍（进阶版）</b>
+                                    <code>自我介绍/自我介绍2.html</code>
+                                </span>
+                                <span class="go">→</span>
+                            </a>
+                        </div>
+                    </article>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- 后续模块 -->
+        <section id="planned">
+            <div class="wrap">
+                <div class="sec-head">
+                    <div>
+                        <h2>后续模块</h2>
+                        <p>随课程推进，新的课堂练习会继续补充到本页。</p>
+                    </div>
+                </div>
+                <div class="planned">
+                    <div class="plan">
+                        <span class="ph-no">模块 03 / 规划中</span>
+                        <h4>CSS 样式与盒模型</h4>
+                        <p>字体与颜色、背景、盒模型、浮动与定位。</p>
+                    </div>
+                    <div class="plan">
+                        <span class="ph-no">模块 04 / 规划中</span>
+                        <h4>页面布局</h4>
+                        <p>Flex 弹性盒、Grid 网格与响应式适配。</p>
+                    </div>
+                    <div class="plan">
+                        <span class="ph-no">模块 05 / 规划中</span>
+                        <h4>交互与动效</h4>
+                        <p>JavaScript 基础、DOM 操作、过渡与动画。</p>
+                    </div>
+                    <div class="plan">
+                        <span class="ph-no">模块 06 / 规划中</span>
+                        <h4>综合实践项目</h4>
+                        <p>整合所学内容，完成一个完整的站点页面。</p>
+                    </div>
+                </div>
+                <p class="planned-note">以上为占位条目，<b>实际模块以课堂进度为准</b>，完成一个就在「课堂目录」中新增一张卡片。</p>
+            </div>
+        </section>
+
+        <!-- 本页提示词 -->
+        <section id="prompt">
+            <div class="wrap">
+                <div class="sec-head">
+                    <div>
+                        <h2>本页提示词</h2>
+                        <p>生成这个首页时使用的那段原始需求，原文保留如下。</p>
+                    </div>
+                </div>
+
+                <div class="prompt-wrap">
+                    <div class="prompt-card">
+                        <div class="prompt-head">
+                            <span class="dots"><i></i><i></i><i></i></span>
+                            <span>prompt.txt</span>
+                        </div>
+                        <pre id="promptText">创建一个新页面，包括本目录下的所有网页的超链接，使用原生代码，不使用cdn，新页面名称为index.html，主题为申家硕的《高级网页设计》课堂实践，美化页面，课堂目录中包含HTML基础、自我介绍网页、其余模块后续在增加。页面中包括本提示词。</pre>
+                        <button class="copy" type="button" id="copyBtn">复制提示词</button>
+                    </div>
+
+                    <aside class="prompt-side">
+                        <h4>本页做了什么</h4>
+                        <ul>
+                            <li><span class="dot"></span><span><b>纯原生实现：</b>单个 HTML 文件，样式与脚本全部内嵌，不引用任何 CDN 或外部资源。</span></li>
+                            <li><span class="dot o"></span><span><b>自动收录：</b>课堂目录按模块列出本目录下所有网页的超链接。</span></li>
+                            <li><span class="dot g"></span><span><b>可扩展：</b>后续每完成一个练习，新增一张卡片即可。</span></li>
+                        </ul>
+                    </aside>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="wrap">
+            <span><b>高级网页设计</b> · 课堂实践作品集 · 指导教师：王垚</span>
+            <span>本页由原生 HTML / CSS / JavaScript 构建，未使用任何第三方库</span>
+        </div>
+    </footer>
+
+    <script>
+        // 复制提示词：优先使用剪贴板 API，失败时回退到选中文本
+        (function () {
+            var btn = document.getElementById('copyBtn');
+            var src = document.getElementById('promptText');
+            if (!btn || !src) return;
+
+            function done() {
+                var old = btn.textContent;
+                btn.textContent = '✓ 已复制';
+                setTimeout(function () { btn.textContent = old; }, 1600);
+            }
+
+            btn.addEventListener('click', function () {
+                var text = src.textContent;
+
+                function fallback() {
+                    try {
+                        var ta = document.createElement('textarea');
+                        ta.value = text;
+                        ta.style.position = 'fixed';
+                        ta.style.opacity = '0';
+                        document.body.appendChild(ta);
+                        ta.select();
+                        document.execCommand('copy');
+                        document.body.removeChild(ta);
+                        done();
+                    } catch (e) {
+                        window.prompt('请手动复制：', text);
+                    }
+                }
+
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    navigator.clipboard.writeText(text).then(done).catch(fallback);
+                } else {
+                    fallback();
+                }
+            });
+        })();
+    </script>
+
+</body>
+
+</html>
