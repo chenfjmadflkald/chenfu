@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="孙绍词的高级网页设计课堂实践目录">
+    <title>高级网页设计 | 孙绍词的课堂实践</title>
+    <style>
+        :root {
+            --ink: #172b35;
+            --muted: #61747a;
+            --paper: #f5f1e8;
+            --card: #fffdf8;
+            --line: #d9d3c5;
+            --accent: #d45f3f;
+            --accent-dark: #a9432d;
+            --teal: #2f7770;
+            --shadow: 0 18px 50px rgba(40, 53, 54, 0.12);
+        }
+        * { box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body {
+            margin: 0;
+            color: var(--ink);
+            background: var(--paper);
+            font-family: "Microsoft YaHei", "Noto Sans CJK SC", sans-serif;
+            line-height: 1.7;
+        }
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            z-index: -1;
+            opacity: .42;
+            background-image: linear-gradient(rgba(23,43,53,.035) 1px, transparent 1px), linear-gradient(90deg, rgba(23,43,53,.035) 1px, transparent 1px);
+            background-size: 28px 28px;
+            pointer-events: none;
+        }
+        .page { width: min(1120px, calc(100% - 40px)); margin: 0 auto; }
+        .topbar { display: flex; justify-content: space-between; align-items: center; padding: 24px 0; color: var(--muted); font-size: .9rem; }
+        .mark { color: var(--ink); font-weight: 800; letter-spacing: .08em; }
+        .topbar a { color: var(--ink); text-decoration: none; border-bottom: 1px solid var(--accent); }
+        .hero { display: grid; grid-template-columns: 1.25fr .75fr; gap: 42px; align-items: end; padding: 76px 0 94px; }
+        .eyebrow { margin: 0 0 18px; color: var(--accent-dark); font-size: .8rem; font-weight: 800; letter-spacing: .2em; text-transform: uppercase; }
+        h1, h2, h3, p { margin-top: 0; }
+        h1 { max-width: 730px; margin-bottom: 24px; font-family: Georgia, "Songti SC", serif; font-size: clamp(3rem, 8vw, 6.8rem); line-height: .98; letter-spacing: -.04em; font-weight: 500; }
+        .hero-copy { max-width: 590px; color: var(--muted); font-size: 1.08rem; }
+        .hero-stamp { justify-self: end; width: 210px; height: 210px; display: grid; place-items: center; border: 1px solid var(--accent); border-radius: 50%; color: var(--accent-dark); text-align: center; transform: rotate(8deg); }
+        .hero-stamp strong { display: block; font-family: Georgia, "Songti SC", serif; font-size: 3.5rem; line-height: 1; }
+        .section-head { display: flex; justify-content: space-between; align-items: end; gap: 20px; padding-bottom: 18px; border-bottom: 1px solid var(--line); }
+        .section-head h2 { margin-bottom: 0; font-family: Georgia, "Songti SC", serif; font-size: 2.25rem; font-weight: 500; }
+        .section-head p { margin-bottom: 0; color: var(--muted); }
+        .modules { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; padding: 30px 0 96px; }
+        .module { min-height: 260px; display: flex; flex-direction: column; justify-content: space-between; padding: 26px; background: var(--card); border: 1px solid var(--line); box-shadow: 5px 5px 0 rgba(47,119,112,.12); transition: transform .2s ease, box-shadow .2s ease; }
+        .module:hover { transform: translateY(-5px); box-shadow: 8px 11px 0 rgba(47,119,112,.18); }
+        .module.future { background: transparent; border-style: dashed; box-shadow: none; }
+        .module-no { color: var(--accent); font-family: Georgia, serif; font-size: 1.2rem; }
+        .module h3 { margin: 24px 0 8px; font-size: 1.35rem; }
+        .module p { color: var(--muted); font-size: .95rem; }
+        .module-link { color: var(--teal); font-weight: 800; text-decoration: none; }
+        .module-link::after { content: "  ↗"; }
+        .module-status { color: var(--muted); font-size: .82rem; }
+        .brief { display: grid; grid-template-columns: .8fr 1.2fr; gap: 42px; padding: 28px 0 76px; border-top: 1px solid var(--line); }
+        .brief h2 { margin-bottom: 8px; font-family: Georgia, "Songti SC", serif; font-size: 2.2rem; font-weight: 500; }
+        .prompt { padding: 24px; background: #213b43; color: #f5f1e8; border-left: 5px solid var(--accent); white-space: pre-wrap; font-family: Consolas, monospace; font-size: .9rem; }
+        footer { display: flex; justify-content: space-between; gap: 20px; padding: 22px 0 34px; color: var(--muted); border-top: 1px solid var(--line); font-size: .85rem; }
+        @media (max-width: 720px) {
+            .page { width: min(100% - 28px, 540px); }
+            .topbar { padding: 18px 0; }
+            .hero { grid-template-columns: 1fr; padding: 48px 0 64px; gap: 34px; }
+            h1 { font-size: clamp(3rem, 18vw, 5rem); }
+            .hero-stamp { justify-self: start; width: 150px; height: 150px; }
+            .hero-stamp strong { font-size: 2.5rem; }
+            .modules, .brief { grid-template-columns: 1fr; padding-bottom: 64px; }
+            .section-head, footer { align-items: start; flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+    <div class="page">
+        <header class="topbar">
+            <span class="mark">SSZ / WEB DESIGN</span>
+            <a href="#catalog">进入课堂目录 ↓</a>
+        </header>
+
+        <main>
+            <section class="hero" aria-labelledby="page-title">
+                <div>
+                    <p class="eyebrow">Advanced Web Design · Class Practice</p>
+                    <h1 id="page-title">高级网页设计<br>课堂实践</h1>
+                    <p class="hero-copy">孙绍词的网页设计学习档案。这里记录从 HTML 结构、页面语义到交互实践的每一步，持续增加中。</p>
+                </div>
+                <div class="hero-stamp" aria-label="课程实践标记"><div><strong>01</strong>COURSE<br>ARCHIVE</div></div>
+            </section>
+
+            <section id="catalog" aria-labelledby="catalog-title">
+                <div class="section-head">
+                    <h2 id="catalog-title">课堂目录</h2>
+                    <p>已完成 02 · 计划持续更新</p>
+                </div>
+                <div class="modules">
+                    <article class="module">
+                        <div><span class="module-no">01 / 基础</span><h3>HTML 基础</h3><p>标题、段落、列表、表格、图片、超链接与块级元素的基础练习。</p></div>
+                        <a class="module-link" href="Untitled-1.html">查看练习</a>
+                    </article>
+                    <article class="module">
+                        <div><span class="module-no">02 / 页面</span><h3>自我介绍网页</h3><p>使用语义化标签组织个人信息，练习页面内容与结构的表达。</p></div>
+                        <a class="module-link" href="self-introduction.html">查看网页</a>
+                    </article>
+                    <article class="module">
+                        <div><span class="module-no">03 / 表单</span><h3>基础表单实践</h3><p>体验文本、密码、邮箱、单选、多选、文件上传与下拉菜单。</p></div>
+                        <a class="module-link" href="form.hyml">查看表单</a>
+                    </article>
+                    <article class="module future"><div><span class="module-no">04 / 待更新</span><h3>CSS 页面美化</h3><p>布局、选择器、颜色与响应式设计将在后续课堂中加入。</p></div><span class="module-status">Coming next</span></article>
+                    <article class="module future"><div><span class="module-no">05 / 待更新</span><h3>JavaScript 交互</h3><p>让网页从静态展示走向可操作的交互体验。</p></div><span class="module-status">Coming next</span></article>
+                </div>
+            </section>
+
+            <section class="brief" aria-labelledby="brief-title">
+                <div><h2 id="brief-title">本页任务</h2><p>把每次课堂实践整理成清晰、可访问、可以继续生长的网页档案。</p></div>
+                <div class="prompt">本提示词：创建一个新页面，包括本目录下的所有网页的超链接，使用原生代码，不使用cdn，新页面名称为index.html，主题为孙绍词的《高级网页设计》课堂实践，美化页面，课堂目录中包含HTML基础、自我介绍网页、其余模块后续在增加。页面中包括本提示词。</div>
+            </section>
+        </main>
+
+        <footer><span>孙绍词 · 高级网页设计</span><span>© 2026 / Learning in public</span></footer>
+    </div>
+</body>
+</html>
