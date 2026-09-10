@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="王垚的《高级网页设计》课堂实践目录">
+    <title>王垚｜高级网页设计课堂实践</title>
+    <style>
+        :root {
+            --ink: #1d2833;
+            --muted: #667481;
+            --paper: #f6f4ee;
+            --card: #fffdf8;
+            --line: #d9ddd8;
+            --accent: #e26d4f;
+            --accent-dark: #a9422f;
+            --mint: #dcefe8;
+            --yellow: #f5d77a;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            margin: 0;
+            color: var(--ink);
+            background: var(--paper);
+            font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+            line-height: 1.7;
+        }
+
+        a {
+            color: inherit;
+        }
+
+        .page-shell {
+            width: min(1120px, calc(100% - 40px));
+            margin: 0 auto;
+        }
+
+        .topbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 24px 0;
+            font-size: 14px;
+        }
+
+        .signature {
+            font-weight: 700;
+            letter-spacing: .08em;
+        }
+
+        .topbar a {
+            text-decoration: none;
+            border-bottom: 1px solid var(--ink);
+        }
+
+        .hero {
+            position: relative;
+            overflow: hidden;
+            padding: clamp(54px, 9vw, 112px) clamp(28px, 7vw, 96px);
+            background: var(--mint);
+            border: 1px solid var(--line);
+        }
+
+        .hero::after {
+            position: absolute;
+            right: 7%;
+            bottom: -46px;
+            width: 190px;
+            height: 190px;
+            content: "";
+            border: 26px solid var(--yellow);
+            border-radius: 50%;
+            opacity: .85;
+        }
+
+        .eyebrow {
+            position: relative;
+            z-index: 1;
+            margin: 0 0 18px;
+            color: var(--accent-dark);
+            font-size: 13px;
+            font-weight: 700;
+            letter-spacing: .18em;
+        }
+
+        h1,
+        h2,
+        p {
+            position: relative;
+            z-index: 1;
+            margin-top: 0;
+        }
+
+        h1 {
+            max-width: 720px;
+            margin-bottom: 20px;
+            font-family: Georgia, "Songti SC", serif;
+            font-size: clamp(42px, 7vw, 84px);
+            line-height: 1.08;
+            letter-spacing: .02em;
+        }
+
+        .hero-copy {
+            max-width: 600px;
+            margin-bottom: 0;
+            color: #41535a;
+            font-size: 18px;
+        }
+
+        .section-heading {
+            display: flex;
+            align-items: end;
+            justify-content: space-between;
+            gap: 24px;
+            margin: 72px 0 24px;
+        }
+
+        h2 {
+            margin-bottom: 0;
+            font-family: Georgia, "Songti SC", serif;
+            font-size: clamp(28px, 4vw, 42px);
+            line-height: 1.2;
+        }
+
+        .section-note {
+            margin-bottom: 5px;
+            color: var(--muted);
+            font-size: 14px;
+        }
+
+        .lesson-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+        }
+
+        .lesson-card {
+            display: flex;
+            min-height: 280px;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 26px;
+            background: var(--card);
+            border: 1px solid var(--line);
+            text-decoration: none;
+            transition: transform .2s ease, border-color .2s ease, box-shadow .2s ease;
+        }
+
+        .lesson-card:hover,
+        .lesson-card:focus-visible {
+            border-color: var(--accent);
+            box-shadow: 8px 8px 0 rgba(226, 109, 79, .14);
+            transform: translateY(-5px);
+        }
+
+        .lesson-number {
+            color: var(--accent);
+            font-family: Georgia, serif;
+            font-size: 22px;
+        }
+
+        .lesson-card h3 {
+            margin: 35px 0 8px;
+            font-size: 22px;
+        }
+
+        .lesson-card p {
+            margin-bottom: 0;
+            color: var(--muted);
+            font-size: 14px;
+        }
+
+        .card-link {
+            margin-top: 24px;
+            color: var(--accent-dark);
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+        .upcoming {
+            background: transparent;
+            border-style: dashed;
+        }
+
+        .upcoming .lesson-number,
+        .upcoming .card-link {
+            color: var(--muted);
+        }
+
+        .prompt-section {
+            display: grid;
+            grid-template-columns: minmax(190px, .6fr) 1.4fr;
+            gap: 32px;
+            margin: 78px 0;
+            padding: 32px;
+            background: var(--ink);
+            color: #f8f5ed;
+        }
+
+        .prompt-section h2 {
+            color: var(--yellow);
+        }
+
+        .prompt-section blockquote {
+            margin: 0;
+            padding-left: 24px;
+            border-left: 2px solid var(--accent);
+            color: #dfe6df;
+            font-size: 15px;
+        }
+
+        .footer {
+            display: flex;
+            justify-content: space-between;
+            gap: 20px;
+            padding: 24px 0 40px;
+            color: var(--muted);
+            border-top: 1px solid var(--line);
+            font-size: 13px;
+        }
+
+        @media (max-width: 760px) {
+            .page-shell {
+                width: min(100% - 28px, 600px);
+            }
+
+            .topbar {
+                align-items: flex-start;
+                flex-direction: column;
+                gap: 8px;
+            }
+
+            .lesson-grid,
+            .prompt-section {
+                grid-template-columns: 1fr;
+            }
+
+            .section-heading,
+            .footer {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .prompt-section {
+                gap: 20px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="page-shell">
+        <header class="topbar">
+            <div class="signature">WANG YAO / 2026—2027</div>
+            <a href="#lessons">查看课堂目录 ↓</a>
+        </header>
+
+        <main>
+            <section class="hero" aria-labelledby="page-title">
+                <p class="eyebrow">CLASS PRACTICE / 001</p>
+                <h1 id="page-title">王垚的<br>高级网页设计</h1>
+                <p class="hero-copy">把课堂上的每一次练习，整理成一个持续生长的网页档案。这里记录 HTML、CSS 与界面设计的学习足迹。</p>
+            </section>
+
+            <section id="lessons" aria-labelledby="lessons-title">
+                <div class="section-heading">
+                    <h2 id="lessons-title">课堂目录</h2>
+                    <p class="section-note">已完成 3 个模块 · 持续更新中</p>
+                </div>
+
+                <div class="lesson-grid">
+                    <a class="lesson-card" href="./html_basic.html.html">
+                        <div>
+                            <span class="lesson-number">01</span>
+                            <h3>HTML 基础</h3>
+                            <p>标题、段落、图片、列表、表格、表单与 HTML5 语义标签。</p>
+                        </div>
+                        <span class="card-link">进入练习 →</span>
+                    </a>
+
+                    <a class="lesson-card" href="./self-introduction.html">
+                        <div>
+                            <span class="lesson-number">02</span>
+                            <h3>自我介绍网页</h3>
+                            <p>使用语义化结构组织个人信息，练习页面内容与层次表达。</p>
+                        </div>
+                        <span class="card-link">进入练习 →</span>
+                    </a>
+
+                    <a class="lesson-card" href="./picture-above-text.html">
+                        <div>
+                            <span class="lesson-number">03</span>
+                            <h3>上图下文</h3>
+                            <p>练习图片与文字的组合布局，认识列表与 Flex 排版方式。</p>
+                        </div>
+                        <span class="card-link">进入练习 →</span>
+                    </a>
+
+                    <div class="lesson-card upcoming">
+                        <div>
+                            <span class="lesson-number">04</span>
+                            <h3>后续模块</h3>
+                            <p>新的课堂实践将在这里继续添加，目录会随学习进度不断扩展。</p>
+                        </div>
+                        <span class="card-link">COMING SOON</span>
+                    </div>
+                </div>
+            </section>
+
+            <section class="prompt-section" aria-labelledby="prompt-title">
+                <h2 id="prompt-title">本次提示词</h2>
+                <blockquote>创建一个新页面，包括本目录下的所有网页的超链接，使用原生代码，不使用cdn，新页面名称为index.html，主题为王垚的《高级网页设计》课堂实践，美化页面，课堂目录中包含HTML基础、自我介绍网页、其余模块后续在增加。页面中包括本提示词。</blockquote>
+            </section>
+        </main>
+
+        <footer class="footer">
+            <span>高级网页设计 · 课堂实践档案</span>
+            <span>Made with HTML &amp; CSS</span>
+        </footer>
+    </div>
+</body>
+
+</html>
