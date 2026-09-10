@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<!--英文叹号回车  -->
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>我的自我介绍</title>
+    <link rel="stylesheet" href="basic.css">
+</head>
+
+<body>
+
+    <h2 class="title-demo">🌟 我的自我介绍</h2>
+
+    <!-- 1. 标题区 -->
+    <h1>👤 我叫 倪铭浩</h1>
+    <h2>💻 计算机科学与技术专业</h2>
+    <h3>📚 正在学习 HTML & CSS</h3>
+    <h4>📍 坐标：大连</h4>
+    <h5>🎯 目标：学会HTML和CSS</h5>
+    <h6>✨ 每天进步一点点</h6>
+
+    <h2 class="title-demo">📝 关于我</h2>
+    <p class="text-cont">
+        我是一个 <em>热爱编程</em> 的新手，目前专注于 <strong>Web 前端</strong> 技术。
+        我喜欢 <u>解决问题</u> 和 <s>拖延</s> 不，是 <u>立即行动</u>！<br>
+        这是我的第一个个人介绍页面，我会不断改进它。
+    </p>
+    <hr>
+
+    <h2 class="title-demo">🔗 我的社交链接 & 头像</h2>
+    <!-- 超链接 + 图片（使用占位图，实际可替换） -->
+    <a href="https://github.com" target="_blank">我的 GitHub</a>
+    &nbsp;|&nbsp;
+    <br>
+    <!-- 使用 id 选择器 #my-avatar 控制头像样式 -->
+    <img id="my-avatar" src="./img/头像.jpg" alt="我的头像">
+
+    <h2 class="title-demo">📋 我的兴趣爱好（列表）</h2>
+    <h3>我喜欢做的事情</h3>
+    <ul class="list-demo">
+        <li>📖 阅读技术书籍</li>
+        <li>🎮 玩策略游戏</li>
+        <li>🏸 打羽毛球</li>
+        <li>🎵 听轻音乐</li>
+    </ul>
+    <h3>学习计划（有序列表）</h3>
+    <ol type="A">
+        <li>HTML & CSS 基础</li>
+        <li>JavaScript 核心</li>
+        <li>Vue / React 框架</li>
+        <li>Node.js 后端</li>
+    </ol>
+
+    <h2 class="title-demo">📊 我的个人信息（表格）</h2>
+    <table id="user-table" border="2" cellspacing="0" cellpadding="3">
+        <caption>个人档案</caption>
+        <tr>
+            <th>项目</th>
+            <th>内容</th>
+        </tr>
+        <tr>
+            <td>姓名</td>
+            <td>倪铭浩</td>
+        </tr>
+        <tr>
+            <td>年龄</td>
+            <td>22</td>
+        </tr>
+        <tr>
+            <td>性别</td>
+            <td>男</td>
+        </tr>
+        <tr>
+            <td>城市</td>
+            <td>大连</td>
+        </tr>
+        <tr>
+            <td>职业</td>
+            <td>学生</td>
+        </tr>
+    </table>
+
+    <h2 class="title-demo">🧱 块级元素示例（div）</h2>
+    <div>
+        <p>div 特点1：独占一整行，自动前后换行。</p>
+        <p>div 特点2：可以嵌套任意标签，这里我放了一个 <a href="#">内部链接</a> 和 <span>行内元素</span>。</p>
+    </div>
+    <div>
+        <p>这是第二个 div，用来展示分组效果。</p>
+        <p>在这里我使用了 <span class="highlight">类选择器 .highlight</span> 来高亮文字。</p>
+    </div>
+
+    <h2 class="title-demo">🏷️ H5 语义标签</h2>
+    <header>头部区域（header）</header>
+    <nav>导航条（nav）</nav>
+    <section>内容区块（section）</section>
+    <article>文章区域（article）</article>
+    <footer>页脚（footer）</footer>
+    <aside>侧边栏（aside）</aside>
+
+    <h2 class="title-demo">📝 联系我（表单）</h2>
+    <form action="#" name="fm" method="post">
+        <p>姓名：
+            <input type="text" placeholder="请输入您的姓名" required>
+        </p>
+        <p>
+            <label for="pwd">密码：</label>
+            <input type="password" name="pwd" id="pwd">
+        </p>
+        <p>邮箱：
+            <input type="email" name="email" id="email" placeholder="example@mail.com">
+        </p>
+        <p>
+            请上传文件（个人简历）：
+            <input type="file" name="file" id="file" multiple>
+        </p>
+        <p>
+            性别：
+            <input type="radio" name="gender" value="f"> 女
+            <input type="radio" name="gender" value="m" checked> 男
+        </p>
+        <p>
+            爱好：
+            <input type="checkbox" name="hobby" value="c"> 编程
+            <input type="checkbox" name="hobby" value="s"> 运动
+            <input type="checkbox" name="hobby" value="r"> 阅读
+        </p>
+        <p>
+            自我评价：
+            <textarea name="intro" id="intro" cols="30" rows="5">我是一个认真、好学的开发者，期待更多实践机会。</textarea>
+        </p>
+        <p>
+            所在城市：
+            <select name="city" id="city">
+                <option value="beijing">北京</option>
+                <option value="shanghai">上海</option>
+                <option value="guangzhou">广州</option>
+                <option value="shenzhen" selected>深圳</option>
+            </select>
+        </p>
+        <p>
+            <input type="submit" value="提交">
+            <input type="reset" value="重置">
+            <input type="button" value="取消">
+        </p>
+    </form>
+    <button>表单外的普通按钮</button>
+
+    <h3 class="intro-title">☝️ 以上就是我的自我介绍</h3>
+    <p class="section-title">感谢你的阅读！</p>
+
+</body>
+
+</html>
