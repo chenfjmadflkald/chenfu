@@ -114,3 +114,11 @@ dist
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
+
+# —— 项目自定义 ——
+cf_prompt.md        # 提示词日志
+.trae/             # agent 配置与 skills
+.git-portable.exe   # Git 安装包
+git-portable/       # 本地 Git Portable
+node-v*.msi         # Node 安装包
+node.exe npm npm.cmd npx npx.cmd corepack corepack.cmd  # 工具链可执行文件

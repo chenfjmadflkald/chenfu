@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>移动端底部导航 · 字体图标</title>
+    <link rel="stylesheet" href="font/iconfont.css">
+    <style>
+        :root {
+            --cf-bg:        #F2F3F5;
+            --cf-surface:   #FFFFFF;
+            --cf-text:      #1A1A1A;
+            --cf-text-sec:  #8E8E93;
+            --cf-active:    #3E59A6;   /* iconfont 原生主色蓝 */
+            --cf-inactive:  #999EA8;   /* iconfont 原生灰色 */
+            --cf-badge:     #E63946;   /* 徽章红 */
+            --cf-tabbar-border: rgba(0,0,0,0.06);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        html, body { height: 100%; }
+        body {
+            background: var(--cf-bg);
+            font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", sans-serif;
+            color: var(--cf-text);
+            display: flex;
+            justify-content: center;
+        }
+
+        /* —— 手机容器：自适应宽度，居中 —— */
+        .cf_phone {
+            width: 100%;
+            max-width: 480px;
+            min-height: 100vh;
+            background: var(--cf-bg);
+            position: relative;
+            padding-bottom: 84px; /* 给底部导航留空间 */
+            box-shadow: 0 0 60px rgba(0,0,0,0.04);
+        }
+
+        /* —— 顶部状态栏（装饰） —— */
+        .cf_statusbar {
+            height: 44px;
+            padding: 0 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 14px;
+            font-weight: 600;
+            background: transparent;
+            color: var(--cf-text);
+        }
+        .cf_statusbar .cf_time { font-variant-numeric: tabular-nums; }
+        .cf_statusbar .cf_icons { font-size: 12px; letter-spacing: 2px; }
+
+        /* —— 内容区 —— */
+        .cf_content {
+            padding: 8px 20px 20px;
+        }
+        .cf_page_title {
+            font-size: 28px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            margin-bottom: 8px;
+        }
+        .cf_page_sub {
+            font-size: 14px;
+            color: var(--cf-text-sec);
+            margin-bottom: 24px;
+        }
+
+        /* 卡片 */
+        .cf_card {
+            background: var(--cf-surface);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 16px;
+        }
+        .cf_card h3 {
+            font-size: 15px;
+            margin-bottom: 6px;
+        }
+        .cf_card p {
+            font-size: 13px;
+            color: var(--cf-text-sec);
+            line-height: 1.6;
+        }
+
+        /* 模拟列表 */
+        .cf_list {
+            background: var(--cf-surface);
+            border-radius: 16px;
+            overflow: hidden;
+        }
+        .cf_list_item {
+            padding: 16px 20px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            border-bottom: 0.5px solid #F0F0F0;
+            font-size: 14px;
+        }
+        .cf_list_item:last-child { border-bottom: none; }
+        .cf_list_avatar {
+            width: 40px; height: 40px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #79C0FF, #3E59A6);
+            color: #fff;
+            display: flex; align-items: center; justify-content: center;
+            font-family: "iconfont";
+            font-size: 20px;
+        }
+        .cf_list_text { flex: 1; }
+        .cf_list_title { font-size: 14px; }
+        .cf_list_desc { font-size: 12px; color: var(--cf-text-sec); margin-top: 2px; }
+
+        /* —— 底部导航 —— */
+        .cf_tabbar {
+            position: fixed;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            max-width: 480px;
+            background: var(--cf-surface);
+            display: flex;
+            justify-content: space-around;
+            align-items: flex-start;
+            padding: 8px 0 calc(8px + env(safe-area-inset-bottom));
+            border-top: 0.5px solid var(--cf-tabbar-border);
+            z-index: 100;
+        }
+
+        .cf_tabbar_item {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 6px 0 4px;
+            cursor: pointer;
+            position: relative;
+            transition: color 0.2s;
+            color: var(--cf-inactive);
+        }
+        .cf_tabbar_item.active { color: var(--cf-active); }
+
+        /* 图标 */
+        .cf_tabbar_item .iconfont {
+            font-size: 24px;
+            line-height: 1;
+            position: relative;
+        }
+        .cf_tabbar_item.active .iconfont {
+            font-size: 26px;
+            transform: translateY(-1px);
+        }
+
+        /* 标签 */
+        .cf_tabbar_item .cf_label {
+            font-size: 10px;
+            margin-top: 4px;
+            font-weight: 500;
+            letter-spacing: 0.3px;
+        }
+
+        /* —— 数字徽章 —— */
+        .cf_badge {
+            position: absolute;
+            top: 0;
+            right: 50%;
+            transform: translate(14px, -2px);
+            min-width: 18px;
+            height: 18px;
+            padding: 0 5px;
+            background: var(--cf-badge);
+            color: #fff;
+            font-size: 10px;
+            font-weight: 700;
+            border-radius: 9px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            line-height: 1;
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+            box-shadow: 0 1px 3px rgba(230, 57, 70, 0.4);
+            z-index: 2;
+        }
+        /* 大数字（两位）稍宽 */
+        .cf_badge.large { min-width: 22px; padding: 0 5px; }
+
+        /* —— 红点（无数字）—— */
+        .cf_dot {
+            position: absolute;
+            top: 2px;
+            right: 50%;
+            transform: translate(12px, 0);
+            width: 8px;
+            height: 8px;
+            background: var(--cf-badge);
+            border-radius: 4px;
+            box-shadow: 0 0 0 2px var(--cf-surface);
+            z-index: 2;
+        }
+
+        /* —— 点击反馈（iOS 风格）—— */
+        .cf_tabbar_item:active { opacity: 0.5; }
+
+        @media (max-width: 360px) {
+            .cf_tabbar_item .iconfont { font-size: 22px; }
+            .cf_tabbar_item .cf_label { font-size: 9px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="cf_phone">
+    <!-- 状态栏 -->
+    <div class="cf_statusbar">
+        <span class="cf_time">9:41</span>
+        <span class="cf_icons">●●●●● 5G 100%</span>
+    </div>
+
+    <!-- 内容区 -->
+    <div class="cf_content">
+        <h1 class="cf_page_title" id="cf_pageTitle">测试</h1>
+        <p class="cf_page_sub" id="cf_pageSub">字体图标 · font-class 方式 · iOS 风格</p>
+
+        <div class="cf_card">
+            <h3>当前 Tab</h3>
+            <p>当前使用 iconfont.css 中的字体图标，通过 class 引用。点击底部导航切换不同页面。</p>
+        </div>
+
+        <div class="cf_list">
+            <div class="cf_list_item">
+                <div class="cf_list_avatar"><span class="iconfont icon-a-wendangleibiexiao_huaban1fuben15"></span></div>
+                <div class="cf_list_text">
+                    <div class="cf_list_title">功能需求 v2.3 评审</div>
+                    <div class="cf_list_desc">待处理 · 3 条新评论</div>
+                </div>
+            </div>
+            <div class="cf_list_item">
+                <div class="cf_list_avatar" style="background:linear-gradient(135deg,#79C0FF,#2D6A4F)"><span class="iconfont icon-a-wendangleibiexiao_huaban1fuben16"></span></div>
+                <div class="cf_list_text">
+                    <div class="cf_list_title">安全机制报告已通过</div>
+                    <div class="cf_list_desc">2 小时前</div>
+                </div>
+            </div>
+            <div class="cf_list_item">
+                <div class="cf_list_avatar" style="background:linear-gradient(135deg,#F4A261,#E76F51)"><span class="iconfont icon-a-wendangleibiexiao_huaban1fuben11"></span></div>
+                <div class="cf_list_text">
+                    <div class="cf_list_title">性能指标恢复正常</div>
+                    <div class="cf_list_desc">CPU 23% · 内存 4.1GB</div>
+                </div>
+            </div>
+            <div class="cf_list_item">
+                <div class="cf_list_avatar" style="background:linear-gradient(135deg,#C792EA,#6A1B9A)"><span class="iconfont icon-a-wendangleibiexiao_huaban1fuben8"></span></div>
+                <div class="cf_list_text">
+                    <div class="cf_list_title">测试用例已完成 87%</div>
+                    <div class="cf_list_desc">剩余 13 项 · 预计 1 天</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 底部导航：4 项 -->
+    <nav class="cf_tabbar" id="cf_tabbar">
+        <!-- 测试 · 有数字徽章 8 -->
+        <div class="cf_tabbar_item active" data-tab="0" data-title="测试" data-sub="字体图标 · font-class 方式">
+            <span class="iconfont icon-a-wendangleibiexiao_huaban1fuben8"></span>
+            <span class="cf_badge">8</span>
+            <span class="cf_label">测试</span>
+        </div>
+
+        <!-- 功能 · 有红点 -->
+        <div class="cf_tabbar_item" data-tab="1" data-title="功能" data-sub="功能需求 · 红点提示">
+            <span class="iconfont icon-a-wendangleibiexiao_huaban1fuben15"></span>
+            <span class="cf_dot"></span>
+            <span class="cf_label">功能</span>
+        </div>
+
+        <!-- 安全 · 有大数字徽章 99+ -->
+        <div class="cf_tabbar_item" data-tab="2" data-title="安全" data-sub="安全机制 · 99+ 未读">
+            <span class="iconfont icon-a-wendangleibiexiao_huaban1fuben16"></span>
+            <span class="cf_badge large">99+</span>
+            <span class="cf_label">安全</span>
+        </div>
+
+        <!-- 性能 · 无徽章 -->
+        <div class="cf_tabbar_item" data-tab="3" data-title="性能" data-sub="性能监控 · 一切正常">
+            <span class="iconfont icon-a-wendangleibiexiao_huaban1fuben11"></span>
+            <span class="cf_label">性能</span>
+        </div>
+    </nav>
+</div>
+
+<!-- 返回首页链接（隐藏在手机容器外，不影响移动端体验） -->
+<div style="display:none"><a href="index.html">← index.html</a></div>
+<a href="index.html" style="position:fixed; top:12px; left:12px; z-index:9999; font-family:-apple-system,sans-serif; font-size:12px; color:#8E8E93; text-decoration:none; background:rgba(255,255,255,0.85); padding:6px 12px; border-radius:16px; backdrop-filter:blur(10px);">← 首页</a>
+
+<script>
+    var cf_items = document.querySelectorAll('.cf_tabbar_item');
+    var cf_title = document.getElementById('cf_pageTitle');
+    var cf_sub = document.getElementById('cf_pageSub');
+
+    for (var i = 0; i < cf_items.length; i++) {
+        cf_items[i].addEventListener('click', function() {
+            for (var j = 0; j < cf_items.length; j++) cf_items[j].classList.remove('active');
+            this.classList.add('active');
+            cf_title.textContent = this.getAttribute('data-title');
+            cf_sub.textContent = this.getAttribute('data-sub');
+
+            // 点击后清除徽章（演示效果）
+            var badge = this.querySelector('.cf_badge');
+            var dot = this.querySelector('.cf_dot');
+            if (badge) badge.remove();
+            if (dot) dot.remove();
+        });
+    }
+
+    // 状态栏时间
+    function cf_updateTime() {
+        var d = new Date();
+        var h = d.getHours();
+        var m = d.getMinutes();
+        var el = document.querySelector('.cf_time');
+        if (el) el.textContent = (h < 10 ? '0' : '') + h + ':' + (m < 10 ? '0' : '') + m;
+    }
+    cf_updateTime();
+    setInterval(cf_updateTime, 30000);
+</script>
+</body>
+</html>

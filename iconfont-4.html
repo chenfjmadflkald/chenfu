@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>移动端底部导航 · SVG</title>
+    <script src="font/iconfont.js"></script>
+    <style>
+        :root {
+            --cf-bg:          #0B0D13;
+            --cf-surface:     #141720;
+            --cf-surface-2:   #1C202B;
+            --cf-text:        #E8EAF0;
+            --cf-text-sec:    #8B90A0;
+            --cf-active-glow: #79C0FF;
+            --cf-active-line: #3E59A6;   /* iconfont 蓝 */
+            --cf-inactive:    #5A6075;
+            --cf-badge:       #FF5C7A;
+            --cf-badge-glow:  rgba(255, 92, 122, 0.5);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        html, body { height: 100%; }
+        body {
+            background: #05060A;
+            font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", sans-serif;
+            color: var(--cf-text);
+            display: flex;
+            justify-content: center;
+        }
+
+        /* SVG 通用样式（iconfont 官方要求） */
+        .cf_svg_icon {
+            width: 1em; height: 1em;
+            vertical-align: -0.15em;
+            fill: currentColor;
+            overflow: hidden;
+        }
+
+        /* —— 手机容器 —— */
+        .cf_phone {
+            width: 100%;
+            max-width: 480px;
+            min-height: 100vh;
+            background: var(--cf-bg);
+            position: relative;
+            padding-bottom: 96px;
+            overflow: hidden;
+        }
+
+        /* 顶部状态栏 */
+        .cf_statusbar {
+            height: 44px;
+            padding: 0 22px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--cf-text);
+        }
+        .cf_statusbar .cf_time { font-variant-numeric: tabular-nums; }
+        .cf_statusbar .cf_icons { font-size: 11px; letter-spacing: 3px; color: var(--cf-text-sec); }
+
+        /* 内容区 */
+        .cf_content { padding: 8px 22px 24px; }
+
+        .cf_page_header {
+            margin-bottom: 28px;
+        }
+        .cf_page_header .cf_page_title {
+            font-size: 32px;
+            font-weight: 700;
+            letter-spacing: -0.8px;
+            background: linear-gradient(135deg, #E8EAF0 0%, #79C0FF 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .cf_page_header .cf_page_sub {
+            font-size: 13px;
+            color: var(--cf-text-sec);
+            margin-top: 6px;
+            letter-spacing: 0.3px;
+        }
+
+        /* 主卡 —— 带光效边框 */
+        .cf_hero_card {
+            position: relative;
+            background: linear-gradient(145deg, var(--cf-surface) 0%, var(--cf-surface-2) 100%);
+            border-radius: 20px;
+            padding: 22px;
+            margin-bottom: 18px;
+            overflow: hidden;
+        }
+        .cf_hero_card::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            border-radius: 20px;
+            padding: 1px;
+            background: linear-gradient(135deg, rgba(121,192,255,0.5), rgba(62,89,166,0.1) 60%, transparent);
+            -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            pointer-events: none;
+        }
+        .cf_hero_card h3 {
+            font-size: 16px;
+            margin-bottom: 10px;
+            color: var(--cf-text);
+        }
+        .cf_hero_card p {
+            font-size: 13px;
+            color: var(--cf-text-sec);
+            line-height: 1.65;
+        }
+        .cf_hero_card .cf_big_icon {
+            float: right;
+            width: 64px; height: 64px;
+            color: var(--cf-active-glow);
+            opacity: 0.9;
+            margin: -6px -4px 0 12px;
+            filter: drop-shadow(0 0 12px rgba(121,192,255,0.3));
+        }
+
+        /* 统计条 */
+        .cf_stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 18px;
+        }
+        .cf_stat {
+            background: var(--cf-surface);
+            border-radius: 14px;
+            padding: 14px 12px;
+            text-align: center;
+        }
+        .cf_stat .cf_stat_num {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--cf-active-glow);
+            font-variant-numeric: tabular-nums;
+        }
+        .cf_stat .cf_stat_label {
+            font-size: 11px;
+            color: var(--cf-text-sec);
+            margin-top: 3px;
+            letter-spacing: 0.2px;
+        }
+
+        /* 列表 */
+        .cf_list {
+            background: var(--cf-surface);
+            border-radius: 16px;
+            overflow: hidden;
+        }
+        .cf_list_item {
+            padding: 14px 18px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            border-bottom: 0.5px solid rgba(255,255,255,0.04);
+        }
+        .cf_list_item:last-child { border-bottom: none; }
+        .cf_list_svg {
+            width: 36px; height: 36px;
+            padding: 7px;
+            border-radius: 10px;
+            background: rgba(121,192,255,0.1);
+            color: var(--cf-active-glow);
+        }
+        .cf_list_text { flex: 1; }
+        .cf_list_title { font-size: 14px; color: var(--cf-text); }
+        .cf_list_desc { font-size: 12px; color: var(--cf-text-sec); margin-top: 2px; }
+        .cf_list_time { font-size: 11px; color: var(--cf-text-sec); opacity: 0.6; }
+
+        /* —— 底部导航 —— */
+        .cf_tabbar_wrap {
+            position: fixed;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            max-width: 480px;
+            z-index: 100;
+            padding-bottom: env(safe-area-inset-bottom);
+        }
+
+        .cf_tabbar {
+            margin: 0 16px;
+            margin-bottom: 12px;
+            background: rgba(20, 23, 32, 0.92);
+            backdrop-filter: blur(24px) saturate(180%);
+            -webkit-backdrop-filter: blur(24px) saturate(180%);
+            border-radius: 24px;
+            border: 1px solid rgba(255,255,255,0.08);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            padding: 10px 4px;
+            box-shadow:
+                0 8px 32px rgba(0,0,0,0.5),
+                0 0 0 0.5px rgba(255,255,255,0.04) inset;
+        }
+
+        .cf_tabbar_item {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 8px 0 6px;
+            cursor: pointer;
+            position: relative;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            color: var(--cf-inactive);
+        }
+
+        .cf_tabbar_item.active { color: var(--cf-active-glow); }
+
+        /* 选中时的发光底座 */
+        .cf_tabbar_item.active::before {
+            content: "";
+            position: absolute;
+            top: 4px;
+            width: 40px;
+            height: 32px;
+            background: radial-gradient(ellipse at center, rgba(121,192,255,0.22) 0%, transparent 70%);
+            border-radius: 16px;
+            z-index: -1;
+        }
+
+        /* SVG 图标 */
+        .cf_tabbar_item .cf_svg_icon {
+            width: 24px;
+            height: 24px;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            fill: currentColor;
+        }
+        .cf_tabbar_item.active .cf_svg_icon {
+            width: 28px;
+            height: 28px;
+            filter: drop-shadow(0 0 8px rgba(121,192,255,0.4));
+        }
+
+        /* 标签 */
+        .cf_tabbar_item .cf_label {
+            font-size: 10px;
+            margin-top: 3px;
+            font-weight: 500;
+            letter-spacing: 0.4px;
+            transition: opacity 0.2s;
+        }
+
+        /* —— 数字徽章 —— */
+        .cf_badge {
+            position: absolute;
+            top: 2px;
+            right: calc(50% - 14px);
+            min-width: 18px;
+            height: 18px;
+            padding: 0 5px;
+            background: var(--cf-badge);
+            color: #fff;
+            font-size: 10px;
+            font-weight: 700;
+            border-radius: 9px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            line-height: 1;
+            box-shadow:
+                0 0 0 2px var(--cf-surface),
+                0 2px 6px rgba(255, 92, 122, 0.5);
+            z-index: 3;
+        }
+        .cf_badge.large { min-width: 24px; padding: 0 6px; border-radius: 10px; }
+
+        /* —— 红点 —— */
+        .cf_dot {
+            position: absolute;
+            top: 4px;
+            right: calc(50% - 10px);
+            width: 8px;
+            height: 8px;
+            background: var(--cf-badge);
+            border-radius: 4px;
+            box-shadow:
+                0 0 0 2px var(--cf-surface),
+                0 0 8px var(--cf-badge-glow);
+            z-index: 3;
+        }
+
+        @media (max-width: 360px) {
+            .cf_tabbar { margin: 0 10px; padding: 8px 2px; }
+            .cf_tabbar_item .cf_svg_icon { width: 22px; height: 22px; }
+            .cf_tabbar_item.active .cf_svg_icon { width: 26px; height: 26px; }
+            .cf_tabbar_item .cf_label { font-size: 9px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="cf_phone">
+    <!-- 状态栏 -->
+    <div class="cf_statusbar">
+        <span class="cf_time">9:41</span>
+        <span class="cf_icons">●●●● 5G 100%</span>
+    </div>
+
+    <!-- 内容 -->
+    <div class="cf_content">
+        <div class="cf_page_header">
+            <h1 class="cf_page_title" id="cf_pageTitle">测试</h1>
+            <p class="cf_page_sub" id="cf_pageSub">SVG · Symbol 方式 · Dynamic Island 风格</p>
+        </div>
+
+        <!-- Hero 卡片（带大 SVG 图标） -->
+        <div class="cf_hero_card">
+            <svg class="cf_big_icon cf_svg_icon" aria-hidden="true">
+                <use xlink:href="#icon-a-wendangleibiexiao_huaban1fuben8"></use>
+            </svg>
+            <h3 id="cf_heroTitle">字体图标 vs SVG</h3>
+            <p id="cf_heroDesc">此页使用 iconfont.js 的 symbol 模式，图标是真正的 SVG 元素，可直接控制颜色、大小、阴影等属性。</p>
+        </div>
+
+        <!-- 统计条 -->
+        <div class="cf_stats">
+            <div class="cf_stat"><div class="cf_stat_num">128</div><div class="cf_stat_label">测试用例</div></div>
+            <div class="cf_stat"><div class="cf_stat_num">96%</div><div class="cf_stat_label">通过率</div></div>
+            <div class="cf_stat"><div class="cf_stat_num">3</div><div class="cf_stat_label">待处理</div></div>
+        </div>
+
+        <!-- 列表 -->
+        <div class="cf_list">
+            <div class="cf_list_item">
+                <svg class="cf_list_svg cf_svg_icon" aria-hidden="true"><use xlink:href="#icon-a-wendangleibiexiao_huaban1fuben15"></use></svg>
+                <div class="cf_list_text">
+                    <div class="cf_list_title">功能需求评审 · v2.3</div>
+                    <div class="cf_list_desc">新增 3 条评论待您回复</div>
+                </div>
+                <div class="cf_list_time">10:24</div>
+            </div>
+            <div class="cf_list_item">
+                <svg class="cf_list_svg cf_svg_icon" style="color:#2D6A4F;background:rgba(45,106,79,0.15)" aria-hidden="true"><use xlink:href="#icon-a-wendangleibiexiao_huaban1fuben16"></use></svg>
+                <div class="cf_list_text">
+                    <div class="cf_list_title">安全机制报告通过</div>
+                    <div class="cf_list_desc">v1.8 版本审核完成</div>
+                </div>
+                <div class="cf_list_time">2h</div>
+            </div>
+            <div class="cf_list_item">
+                <svg class="cf_list_svg cf_svg_icon" style="color:#F4A261;background:rgba(244,162,97,0.15)" aria-hidden="true"><use xlink:href="#icon-a-wendangleibiexiao_huaban1fuben11"></use></svg>
+                <div class="cf_list_text">
+                    <div class="cf_list_title">性能告警已解除</div>
+                    <div class="cf_list_desc">响应时间 142ms · P99 正常</div>
+                </div>
+                <div class="cf_list_time">1d</div>
+            </div>
+            <div class="cf_list_item">
+                <svg class="cf_list_svg cf_svg_icon" style="color:#C792EA;background:rgba(199,146,234,0.15)" aria-hidden="true"><use xlink:href="#icon-a-wendangleibiexiao_huaban1fuben8"></use></svg>
+                <div class="cf_list_text">
+                    <div class="cf_list_title">测试覆盖率 87%</div>
+                    <div class="cf_list_desc">较上周 +4.2%</div>
+                </div>
+                <div class="cf_list_time">3d</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 底部导航：胶囊形毛玻璃 -->
+    <div class="cf_tabbar_wrap">
+        <nav class="cf_tabbar" id="cf_tabbar">
+            <!-- 测试 · 有数字徽章 8 -->
+            <div class="cf_tabbar_item active"
+                 data-title="测试"
+                 data-sub="SVG · Symbol 方式 · Dynamic Island 风格"
+                 data-hero-title="字体图标 vs SVG"
+                 data-hero-desc="此页使用 iconfont.js 的 symbol 模式，图标是真正的 SVG 元素，可直接控制颜色、大小、阴影等属性。"
+                 data-svg-id="icon-a-wendangleibiexiao_huaban1fuben8">
+                <svg class="cf_svg_icon" aria-hidden="true"><use xlink:href="#icon-a-wendangleibiexiao_huaban1fuben8"></use></svg>
+                <span class="cf_badge">8</span>
+                <span class="cf_label">测试</span>
+            </div>
+
+            <!-- 功能 · 有红点 -->
+            <div class="cf_tabbar_item"
+                 data-title="功能"
+                 data-sub="功能需求 · 红点提示"
+                 data-hero-title="功能需求看板"
+                 data-hero-desc="期望功能需求梳理中。红点表示有新条目待查看。"
+                 data-svg-id="icon-a-wendangleibiexiao_huaban1fuben15">
+                <svg class="cf_svg_icon" aria-hidden="true"><use xlink:href="#icon-a-wendangleibiexiao_huaban1fuben15"></use></svg>
+                <span class="cf_dot"></span>
+                <span class="cf_label">功能</span>
+            </div>
+
+            <!-- 安全 · 大徽章 99+ -->
+            <div class="cf_tabbar_item"
+                 data-title="安全"
+                 data-sub="安全机制 · 99+ 未读"
+                 data-hero-title="安全机制巡检"
+                 data-hero-desc="本周共发现 99+ 条安全提示，建议尽快处理高优先级项。"
+                 data-svg-id="icon-a-wendangleibiexiao_huaban1fuben16">
+                <svg class="cf_svg_icon" aria-hidden="true"><use xlink:href="#icon-a-wendangleibiexiao_huaban1fuben16"></use></svg>
+                <span class="cf_badge large">99+</span>
+                <span class="cf_label">安全</span>
+            </div>
+
+            <!-- 性能 · 无徽章 -->
+            <div class="cf_tabbar_item"
+                 data-title="性能"
+                 data-sub="性能监控 · 一切正常"
+                 data-hero-title="性能仪表盘"
+                 data-hero-desc="系统性能稳定。SVG 方式允许对单独 path 设置不同颜色和动画。"
+                 data-svg-id="icon-a-wendangleibiexiao_huaban1fuben11">
+                <svg class="cf_svg_icon" aria-hidden="true"><use xlink:href="#icon-a-wendangleibiexiao_huaban1fuben11"></use></svg>
+                <span class="cf_label">性能</span>
+            </div>
+        </nav>
+    </div>
+</div>
+
+<!-- 返回首页 -->
+<a href="index.html" style="position:fixed; top:12px; left:12px; z-index:9999; font-family:-apple-system,sans-serif; font-size:12px; color:#8B90A0; text-decoration:none; background:rgba(20,23,32,0.85); backdrop-filter:blur(10px); padding:6px 12px; border-radius:16px; border:1px solid rgba(255,255,255,0.08);">← 首页</a>
+
+<script>
+    var cf_items = document.querySelectorAll('.cf_tabbar_item');
+    var cf_title = document.getElementById('cf_pageTitle');
+    var cf_sub = document.getElementById('cf_pageSub');
+    var cf_heroTitle = document.getElementById('cf_heroTitle');
+    var cf_heroDesc = document.getElementById('cf_heroDesc');
+    var cf_bigIconWrap = document.querySelector('.cf_hero_card .cf_big_icon');
+
+    for (var i = 0; i < cf_items.length; i++) {
+        cf_items[i].addEventListener('click', function() {
+            for (var j = 0; j < cf_items.length; j++) cf_items[j].classList.remove('active');
+            this.classList.add('active');
+
+            cf_title.textContent = this.getAttribute('data-title');
+            cf_sub.textContent = this.getAttribute('data-sub');
+            cf_heroTitle.textContent = this.getAttribute('data-hero-title');
+            cf_heroDesc.textContent = this.getAttribute('data-hero-desc');
+
+            // 切换大图标（替换 use 的 xlink:href）
+            var svgId = this.getAttribute('data-svg-id');
+            if (cf_bigIconWrap) {
+                var useEl = cf_bigIconWrap.querySelector('use');
+                if (useEl) useEl.setAttribute('xlink:href', '#' + svgId);
+            }
+
+            // 清除徽章（演示）
+            var badge = this.querySelector('.cf_badge');
+            var dot = this.querySelector('.cf_dot');
+            if (badge) badge.remove();
+            if (dot) dot.remove();
+        });
+    }
+
+    // 状态栏时间
+    function cf_updateTime() {
+        var d = new Date();
+        var h = d.getHours();
+        var m = d.getMinutes();
+        var el = document.querySelector('.cf_time');
+        if (el) el.textContent = (h < 10 ? '0' : '') + h + ':' + (m < 10 ? '0' : '') + m;
+    }
+    cf_updateTime();
+    setInterval(cf_updateTime, 30000);
+</script>
+</body>
+</html>
