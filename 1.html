@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>逢七过游戏 1~100</title>
+    <style>
+        body{
+            font-size:18px;
+            padding:30px;
+        }
+        button{
+            padding:8px 16px;
+            font-size:16px;
+            cursor:pointer;
+        }
+        #result{
+            margin-top:20px;
+            line-height:1.6;
+        }
+    </style>
+</head>
+<body>
+    <h3>规则：1~100，遇到7的倍数或者包含数字7就跳过</h3>
+    <button onclick="generate()">点击生成答案</button>
+    <div id="result"></div>
+
+<script>
+function generate(){
+    let arr = [];
+    for(let i = 1; i <= 100; i++){
+        if(i % 7 === 0 || String(i).includes('7')){
+            continue;
+        }
+        arr.push(i);
+    }
+    document.getElementById('result').innerText = arr.join(' ');
+}
+</script>
+</body>
+</html>
