@@ -116,24 +116,20 @@ dist
 .pnp.*
 
 # —— 项目自定义 ——
-# 提示词日志
+# 提示词日志（本地记录，不提交）
 cf_prompt.md
-# agent 配置与 skills
+# agent 配置与 skills（本地工具，不提交）
 .trae/
-# Git 安装包
-.git-portable.exe
+.trae-html-share-packages/
+# Git 安装包与便携版（本机工具，不提交）
 git-portable.exe
-# 本地 Git Portable
 git-portable/
-# Node 安装包
+# Node 安装包与工具链可执行文件（本机工具，不提交）
 node-v*.msi
-# 工具链可执行文件
 node.exe
 npm
 npm.cmd
 npx
 npx.cmd
-npm.ps1
-npx.ps1
 corepack
 corepack.cmd
