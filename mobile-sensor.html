@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>摇一摇 · 今日菜谱 ｜ 陈福</title>
+<!--
+  ============================================
+  作者：陈福
+  建立时间：2026-11-16
+  使用模型：GLM-5.3-Flash
+  功能名称：mobile-sensor.html（摇一摇抽今日菜谱 · devicemotion）
+  功能简介：监听 devicemotion，取 accelerationIncludingGravity 计算
+            合成加速度 |a| = √(x²+y²+z²)，超过阈值 18 判定为摇动；
+            触发后进入 1.5s 冷却，一次摇动只抽一次；
+            随机抽取一道菜弹出展示；实时显示当前加速度数值条；
+            1.5s 内收不到事件或数据全为 null → 显示"当前设备不支持"
+            并提供"点我抽一次"降级按钮（不报错不白屏）；
+            iOS 13+ 需用户手势触发 DeviceMotionEvent.requestPermission。
+  ============================================
+-->
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:"Microsoft YaHei","PingFang SC",system-ui,sans-serif;background:#14161c;color:#fff;-webkit-tap-highlight-color:transparent}
+
+  .cf_wrap{max-width:430px;margin:0 auto;min-height:100vh;display:flex;flex-direction:column;padding:22px 18px 30px}
+
+  /* 顶栏 */
+  .cf_head{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+  .cf_head h1{font-size:20px;letter-spacing:1px}
+  .cf_state{font-size:12px;padding:4px 12px;border-radius:999px;border:1px solid #3a4152;color:#8b93a5}
+  .cf_state.cf_ok{color:#3ddc84;border-color:#2c5e45}
+
+  /* 摇一摇主卡 */
+  .cf_shake{background:linear-gradient(135deg,#ff9a56,#ff5e62);border-radius:18px;padding:30px 24px;text-align:center;box-shadow:0 14px 34px rgba(0,0,0,.45);position:relative;overflow:hidden}
+  .cf_shake::before{content:"";position:absolute;right:-40px;top:-40px;width:130px;height:130px;border-radius:50%;background:rgba(255,255,255,.14)}
+  .cf_bowl{font-size:56px;line-height:1;display:inline-block;filter:drop-shadow(0 6px 12px rgba(0,0,0,.25))}
+  .cf_bowl.cf_shaking{animation:cf_shake .45s ease}
+  @keyframes cf_shake{
+    0%{transform:rotate(0)} 20%{transform:rotate(-16deg) translateX(-6px)}
+    40%{transform:rotate(14deg) translateX(6px)} 60%{transform:rotate(-12deg)}
+    80%{transform:rotate(10deg)} 100%{transform:rotate(0)}
+  }
+  .cf_shake h2{font-size:19px;margin-top:12px;letter-spacing:1px;text-shadow:0 2px 8px rgba(0,0,0,.2)}
+  .cf_shake p{font-size:12.5px;color:rgba(255,255,255,.9);margin-top:6px}
+
+  /* 实时加速度条 */
+  .cf_meter{margin-top:16px}
+  .cf_meter .cf_num{font-size:12px;color:rgba(255,255,255,.9);text-align:left;display:flex;justify-content:space-between}
+  .cf_bar{height:8px;border-radius:6px;background:rgba(255,255,255,.25);margin-top:6px;overflow:hidden}
+  .cf_bar i{display:block;height:100%;width:0;background:#ffe08a;border-radius:6px;transition:width .12s linear}
+  .cf_bar i.cf_hit{background:#fff04d}
+
+  /* 结果卡：弹出动画 */
+  .cf_result{display:none;margin-top:16px;background:#1c1f27;border:1px solid #2a2f3c;border-radius:16px;padding:24px;text-align:center}
+  .cf_result.cf_show{display:block;animation:cf_pop .35s cubic-bezier(.34,1.56,.64,1)}
+  @keyframes cf_pop{from{transform:scale(.4);opacity:0}to{transform:scale(1);opacity:1}}
+  .cf_result .cf_dish_emoji{font-size:44px;line-height:1}
+  .cf_result h3{font-size:22px;color:#ffb84d;margin-top:10px;letter-spacing:2px}
+  .cf_result p{font-size:13px;color:#8b93a5;margin-top:8px;line-height:1.9}
+
+  /* 降级区（不支持时显示） */
+  .cf_fallback{display:none;margin-top:16px;background:#2a1f1f;border:1px solid #5e2c2c;border-radius:14px;padding:18px;text-align:center}
+  .cf_fallback.cf_show{display:block;animation:cf_pop .35s ease}
+  .cf_fallback p{font-size:14px;color:#ff9a9a;line-height:1.9}
+  .cf_fallback small{display:block;font-size:11.5px;color:#a07676;margin-top:4px}
+  .cf_btn{margin-top:14px;border:none;font-size:14.5px;font-weight:bold;padding:11px 30px;border-radius:999px;background:#ffb84d;color:#14161c;font-family:inherit;cursor:pointer}
+  .cf_btn:active{transform:scale(.96)}
+
+  /* 说明区 */
+  .cf_note{margin-top:20px;background:#1c1f27;border:1px solid #2a2f3c;border-radius:12px;padding:14px 18px;font-size:12.5px;color:#8b93a5;line-height:2.05}
+  .cf_note b{color:#ffb84d}
+  .cf_note h3{font-size:14px;color:#cfd6e4;margin:8px 0 2px}
+
+  .cf_back{text-align:center;margin-top:22px}
+  .cf_back a{display:inline-block;text-decoration:none;color:#cfd6e4;font-size:13.5px;font-weight:bold;background:#1c1f27;border:1px solid #2a2f3c;border-radius:999px;padding:9px 24px}
+</style>
+</head>
+<body>
+<div class="cf_wrap">
+
+  <header class="cf_head">
+    <h1>🎲 摇一摇 · 今日菜谱</h1>
+    <span class="cf_state" id="cfState">检测传感器…</span>
+  </header>
+
+  <!-- 摇一摇主卡 -->
+  <div class="cf_shake">
+    <span class="cf_bowl" id="cfBowl">🥘</span>
+    <h2>摇一摇手机，抽今日菜谱</h2>
+    <p>合成加速度 ≥ 18 判定摇动 · 触发后 1.5s 冷却</p>
+    <div class="cf_meter">
+      <div class="cf_num"><span>实时 |a|</span><span id="cfNow">--</span></div>
+      <div class="cf_bar"><i id="cfBar"></i></div>
+    </div>
+  </div>
+
+  <!-- 抽取结果 -->
+  <div class="cf_result" id="cfResult">
+    <div class="cf_dish_emoji" id="cfDishEmoji">🍖</div>
+    <h3 id="cfDishName">红烧肉</h3>
+    <p id="cfDishDesc"></p>
+  </div>
+
+  <!-- 降级：设备不支持 -->
+  <div class="cf_fallback" id="cfFallback">
+    <p>当前设备不支持，请用手机打开</p>
+    <small>devicemotion 无事件或数据为 null（桌面端 / 无传感器环境）</small>
+    <button class="cf_btn" id="cfFakeBtn">点我抽一次</button>
+  </div>
+
+  <!-- 说明区：作者 + 降级原因 + 两种加速度的区别（答辩用） -->
+  <div class="cf_note">
+    <h3>👨‍🎓 作者</h3>
+    姓名：陈福　｜　变量前缀：cf_（按本人命名规则）
+    <h3>🛟 为什么必须做降级？</h3>
+    <b>①</b> 桌面浏览器 / 模拟器 / 无加速度芯片的设备根本不会带有效数据的 devicemotion 事件，页面若只认传感器就会永远"死"在那里——降级按钮让核心功能（抽菜谱）在任何设备都可用；<br>
+    <b>②</b> Chrome 桌面端会触发 devicemotion 但 accelerationIncludingGravity 全为 null，必须判空而不是报错；<br>
+    <b>③</b> iOS 13+ 出于隐私要求传感器 API 必须由用户手势触发 requestPermission()，拒绝授权后同样要落到降级方案；<br>
+    <b>④</b> 传感器 API 还要求 HTTPS（或 localhost），http 打开也会静默失败——降级是唯一兜底。
+    <h3>⚖️ accelerationIncludingGravity vs acceleration</h3>
+    <b>accelerationIncludingGravity</b>：设备感受到的<b>总加速度 = 用户运动加速度 + 重力分量</b>。手机静置平放时它 ≈ {x:0, y:0, z:9.8}——z 轴那 9.8 就是重力；摇一摇看它，是因为重力基准让"晃动"信号更强、也更省一次滤波。<br>
+    <b>acceleration</b>：系统<b>扣掉重力后的线性加速度</b>（陀螺仪/重力滤波补偿）。静置时 ≈ {0,0,0}，只反映真实的移动运动。<br>
+    一句话：前者"含重力的原始读数"，后者"去重力后的净加速度"；本页用前者 + 阈值 18（静置 ≈9.8，晃动瞬时可达 20+，阈值好定）。
+  </div>
+
+  <div class="cf_back"><a href="index.html">← 返回课程目录</a></div>
+</div>
+
+<script>
+/* ============================================================
+   作者：陈福 · 2026-11-16 · GLM-5.3-Flash
+   功能：devicemotion 摇一摇状态机（阈值 18 / 冷却 1.5s / 降级按钮）
+   核心模型：|a| = √(x²+y²+z²)，静置 ≈ 9.8（重力分量），
+             摇动瞬时 |a| 峰值通常 > 20 → 阈值 18 判定一次摇动
+   ============================================================ */
+var CF_THRESHOLD = 18;      /* 摇动判定阈值 */
+var CF_COOLDOWN = 1500;     /* 冷却毫秒数：一次摇动只触发一次 */
+var CF_DETECT_MS = 1500;    /* 多久收不到有效事件就判"不支持" */
+
+var cf_state = document.getElementById("cfState");
+var cf_bowl = document.getElementById("cfBowl");
+var cf_now = document.getElementById("cfNow");
+var cf_bar = document.getElementById("cfBar");
+var cf_result = document.getElementById("cfResult");
+var cf_fallback = document.getElementById("cfFallback");
+var cf_fakeBtn = document.getElementById("cfFakeBtn");
+
+var cf_lastShake = 0;       /* 上次触发时间戳（冷却用） */
+var cf_sensorOk = false;    /* 是否收到过有效传感器数据 */
+var cf_gotEvent = false;    /* 是否收到过 devicemotion 事件（哪怕 null） */
+var cf_dishIdx = -1;        /* 上次抽中的菜，避免降级按钮连点重复 */
+
+/* 8 道菜谱池 */
+var cf_dishes = [
+  { emoji: "🍖", name: "红烧肉", desc: "五花肉煸出油，黄酒冰糖小火焖足一小时，肥而不腻入口即化。" },
+  { emoji: "🍗", name: "宫保鸡丁", desc: "鸡丁滑油配酥花生，荔枝口酸甜微辣，下饭界的永恒顶流。" },
+  { emoji: "🌶️", name: "麻婆豆腐", desc: "豆腐嫩、臊子酥，花椒麻香直冲天灵盖，一勺勾走半碗米饭。" },
+  { emoji: "🥩", name: "糖醋排骨", desc: "肋排焯水收浓糖醋汁，红亮挂汁，冷热两吃都是硬菜。" },
+  { emoji: "🐟", name: "清蒸鲈鱼", desc: "旺火八分钟，热油激出葱丝香，鱼肉似蒜瓣清甜回甘。" },
+  { emoji: "🍅", name: "番茄牛腩", desc: "牛腩炖到酥软，番茄熬成浓汤，酸甜开胃连汤都不剩。" },
+  { emoji: "🍗", name: "可乐鸡翅", desc: "鸡翅煎出虎皮，可乐收成琥珀色亮汁，新手也能零失败。" },
+  { emoji: "🍲", name: "麻辣香锅", desc: "十样食材一锅烩，干香麻辣，选择困难症的最优解。" },
+];
+
+/**
+ * 更新实时加速度读数与能量条
+ * 核心实现：条宽 = min(|a| / 30 × 100, 100)%，超阈值时变亮黄色
+ * @param {number} mag 合成加速度模长
+ * @returns {void}
+ */
+function cf_renderMeter(mag) {
+  cf_now.textContent = mag.toFixed(1);
+  cf_bar.style.width = Math.min(mag / 30 * 100, 100) + "%";
+  cf_bar.className = mag >= CF_THRESHOLD ? "cf_hit" : "";
+}
+
+/**
+ * 随机抽一道菜并弹出展示
+ * 核心实现：先移除动画类 → 强制 reflow → 再加回，保证重复触发也能重播弹出动画
+ * @param {number} idx 菜谱索引（降级按钮传入避免重复，摇动传 -1 完全随机）
+ * @returns {void}
+ */
+function cf_pickDish(idx) {
+  var i = idx;
+  if (i < 0) { i = Math.floor(Math.random() * cf_dishes.length); }
+  else { i = (i + 1) % cf_dishes.length; }   /* 降级按钮：顺序轮换避免连点出同一道 */
+  cf_dishIdx = i;
+  var d = cf_dishes[i];
+  cf_result.classList.remove("cf_show");
+  void cf_result.offsetWidth;
+  document.getElementById("cfDishEmoji").textContent = d.emoji;
+  document.getElementById("cfDishName").textContent = d.name;
+  document.getElementById("cfDishDesc").textContent = d.desc;
+  cf_result.classList.add("cf_show");
+}
+
+/**
+ * 标记设备不支持：显示降级区，不报错不白屏
+ * @returns {void}
+ */
+function cf_markUnsupported() {
+  if (cf_sensorOk) { return; }
+  cf_state.textContent = "设备不支持";
+  cf_state.className = "cf_state";
+  cf_fallback.classList.add("cf_show");
+}
+
+/**
+ * iOS 13+ 权限申请：必须由用户手势（点击按钮）触发
+ * @returns {void}
+ */
+function cf_requestIOSPermission() {
+  DeviceMotionEvent.requestPermission()
+    .then(function (state) {
+      if (state === "granted") {
+        window.addEventListener("devicemotion", cf_onMotion);
+        cf_state.textContent = "等待摇动…";
+      } else {
+        cf_markUnsupported();   /* 用户拒绝 → 落到降级方案 */
+      }
+    })
+    .catch(function () { cf_markUnsupported(); });
+}
+
+/**
+ * devicemotion 处理器：算合成加速度、判阈值、走冷却
+ * 核心实现：① 值全为 null 视为无传感器；② |a| ≥ 18 且不在冷却期才触发；
+ *          触发即记录时间戳 + 摇碗动画 + 抽菜
+ * @param {DeviceMotionEvent} e 设备运动事件
+ * @returns {void}
+ */
+function cf_onMotion(e) {
+  cf_gotEvent = true;
+  var g = e.accelerationIncludingGravity;
+  if (!g || g.x === null || g.y === null || g.z === null) { return; }
+
+  if (!cf_sensorOk) {
+    cf_sensorOk = true;
+    cf_fallback.classList.remove("cf_show");
+    cf_state.textContent = "传感器就绪，摇起来！";
+    cf_state.className = "cf_state cf_ok";
+  }
+
+  var mag = Math.sqrt(g.x * g.x + g.y * g.y + g.z * g.z);
+  cf_renderMeter(mag);
+  if (mag < CF_THRESHOLD) { return; }
+  if (Date.now() - cf_lastShake < CF_COOLDOWN) { return; }   /* 冷却中：忽略 */
+
+  cf_lastShake = Date.now();
+  cf_bowl.classList.remove("cf_shaking");
+  void cf_bowl.offsetWidth;
+  cf_bowl.classList.add("cf_shaking");
+  cf_pickDish(-1);
+}
+
+/* iOS 13+：requestPermission 存在就必须先由按钮申请权限 */
+if (typeof DeviceMotionEvent !== "undefined" &&
+    typeof DeviceMotionEvent.requestPermission === "function") {
+  cf_state.textContent = "需授权传感器";
+  var cf_iosBtn = document.createElement("button");
+  cf_iosBtn.className = "cf_btn";
+  cf_iosBtn.textContent = "开启传感器权限";
+  cf_iosBtn.addEventListener("click", cf_requestIOSPermission);
+  cf_fallback.insertBefore(cf_iosBtn, cf_fakeBtn);
+  cf_fallback.classList.add("cf_show");
+} else if (typeof DeviceMotionEvent !== "undefined") {
+  window.addEventListener("devicemotion", cf_onMotion);
+}
+
+/* 降级按钮：无传感器也能抽一次 */
+cf_fakeBtn.addEventListener("click", function () { cf_pickDish(cf_dishIdx); });
+
+/* 1.5s 内收不到事件 → 判定不支持（支持后此定时器无效） */
+setTimeout(function () { if (!cf_sensorOk) { cf_markUnsupported(); } }, CF_DETECT_MS);
+</script>
+</body>
+</html>

@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>图片查看器 · 双指缩放 + 双击放大 + 拖动 ｜ 陈福</title>
+<!--
+  ============================================
+  作者：陈福
+  建立时间：2026-11-16
+  使用模型：GLM-5.3-Flash
+  功能名称：mobile-zoom.html（移动端图片查看器）
+  功能简介：双指捏合缩放（1x~4x，以两指中点为缩放基准，图片不"跳走"）；
+            双击在 1x/2x 之间切换（0.25s 过渡，锚定点击点）；
+            scale>1 时单指拖动查看细节，松手夹持回边界内；
+            缩回 1x 自动居中；缩放越界用 0.3 阻尼 + 松手回弹；
+            容器 overflow:hidden + touch-action:none + user-select:none；
+            旋转屏幕（resize）重新夹持平移量，缩放状态不丢失；
+            加分项：右上角实时缩放比例指示器。
+  ============================================
+-->
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{height:100%}
+  body{font-family:"Microsoft YaHei","PingFang SC",system-ui,sans-serif;background:#14161c;color:#fff;-webkit-tap-highlight-color:transparent}
+
+  .cf_wrap{max-width:430px;margin:0 auto;min-height:100%;display:flex;flex-direction:column;padding:20px 18px 30px}
+
+  /* 顶栏 */
+  .cf_head{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+  .cf_head h1{font-size:20px;letter-spacing:1px}
+  .cf_zoom{font-size:13px;font-weight:bold;color:#14161c;background:#ffb84d;border-radius:999px;padding:4px 14px;min-width:74px;text-align:center;letter-spacing:1px;transition:background .25s}
+  .cf_zoom.cf_max{background:#ff7a59}
+
+  /* 查看器容器：手势全部接管，禁掉浏览器默认行为 */
+  .cf_viewer{position:relative;overflow:hidden;height:66vh;min-height:340px;background:#000;border-radius:18px;box-shadow:0 14px 34px rgba(0,0,0,.45);touch-action:none;user-select:none;-webkit-user-select:none}
+  .cf_viewer img{
+    position:absolute;left:50%;top:50%;width:100%;height:auto;display:block;
+    transform:translate(-50%,-50%);will-change:transform;pointer-events:none;
+  }
+  .cf_corner{position:absolute;left:12px;bottom:10px;font-size:11px;color:rgba(255,255,255,.45);letter-spacing:1px}
+
+  /* 手势说明 */
+  .cf_tips{margin-top:18px;background:#1c1f27;border:1px solid #2a2f3c;border-radius:12px;padding:14px 18px;font-size:12.5px;color:#8b93a5;line-height:2.1}
+  .cf_tips b{color:#ffb84d}
+
+  .cf_back{text-align:center;margin-top:22px}
+  .cf_back a{display:inline-block;text-decoration:none;color:#cfd6e4;font-size:13.5px;font-weight:bold;background:#1c1f27;border:1px solid #2a2f3c;border-radius:999px;padding:9px 24px}
+  .cf_back a:active{background:#262b37}
+</style>
+</head>
+<body>
+<div class="cf_wrap">
+
+  <header class="cf_head">
+    <h1>🔍 图片查看器</h1>
+    <span class="cf_zoom" id="cfZoom">1.00x</span>
+  </header>
+
+  <!-- 查看器：overflow:hidden + touch-action:none + user-select:none -->
+  <div class="cf_viewer" id="cfViewer">
+    <img id="cfImg" src="swiper-imgs/aida.jpg" alt="爱达·魔都号">
+    <span class="cf_corner">爱达·魔都号 · 首艘国产大型邮轮</span>
+  </div>
+
+  <div class="cf_tips">
+    <b>验收要点：</b>① 缩放以两指中点为基准，焦点不动图片不跳；② 1x~4x 之外越界走 0.3 阻尼、松手回弹；③ 1x 拖动有橡皮筋反馈但松手必回中；④ 旋转屏幕状态不丢；双击在 1x/2x 间切换（0.25s 过渡）；右上角实时显示缩放倍率。
+  </div>
+
+  <div class="cf_back"><a href="index.html">← 返回课程目录</a></div>
+</div>
+
+<script>
+/* ============================================================
+   作者：陈福 · 2026-11-16 · GLM-5.3-Flash
+   功能：图片查看器手势状态机（捏合缩放 / 双击 / 拖动 / 夹持回弹）
+   变换模型：transform = translate(-50%,-50%) translate(tx,ty) scale(s)
+             图片中心始终落在容器中心 + (tx,ty)，缩放围绕图片中心；
+             焦点锚定公式：t1 = f - (s1/s0) * (f - t0)
+             （f 为两指中点相对容器中心的坐标，保证焦点下的图像点不动）
+   ============================================================ */
+var cf_viewer = document.getElementById("cfViewer");
+var cf_img = document.getElementById("cfImg");
+var cf_badge = document.getElementById("cfZoom");
+
+var cf_cw = 0, cf_ch = 0;         /* 容器尺寸 */
+var cf_iw = 0, cf_ih = 0;         /* 图片 scale=1 时的显示尺寸 */
+var cf_scale = 1, cf_tx = 0, cf_ty = 0;
+var CF_MIN = 1, CF_MAX = 4;       /* 缩放边界 */
+
+var cf_pinch = null;              /* {d0, s0, t0x, t0y} 双指基准 */
+var cf_over = null;               /* 越界方向（1 或 4），松手回弹目标 */
+var cf_drag = null;               /* {x0, y0, t0x, t0y} 单指拖动基准 */
+var cf_lastTap = { t: 0, x: 0, y: 0 };  /* 双击检测 */
+
+/**
+ * 测量容器与图片尺寸（load 后和 resize 后调用）
+ * 核心实现：图片宽恒为容器宽，高按原始宽高比折算
+ * @returns {void}
+ */
+function cf_measure() {
+  cf_cw = cf_viewer.clientWidth;
+  cf_ch = cf_viewer.clientHeight;
+  cf_iw = cf_cw;
+  cf_ih = cf_cw * cf_img.naturalHeight / cf_img.naturalWidth;
+}
+
+/**
+ * 求当前倍率下允许的最大平移量（图片边缘不脱离容器）
+ * 核心实现：溢出量 = (图片尺寸 × scale − 容器尺寸) / 2，1x 时为 0 → 自动居中
+ * @param {number} s 目标倍率
+ * @returns {{x:number, y:number}} x/y 方向的最大平移（正值）
+ */
+function cf_maxT(s) {
+  return {
+    x: Math.max(0, (cf_iw * s - cf_cw) / 2),
+    y: Math.max(0, (cf_ih * s - cf_ch) / 2),
+  };
+}
+
+/**
+ * 把 tx/ty 夹持回当前倍率的边界内并渲染
+ * @param {boolean} anim 是否带 0.25s 过渡（松手回弹/双击时为 true）
+ * @returns {void}
+ */
+function cf_clampT(anim) {
+  var m = cf_maxT(cf_scale);
+  cf_tx = Math.max(-m.x, Math.min(m.x, cf_tx));
+  cf_ty = Math.max(-m.y, Math.min(m.y, cf_ty));
+  cf_apply(anim);
+}
+
+/**
+ * 渲染当前变换到 <img> 并刷新倍率指示器
+ * @param {boolean} anim 是否带 0.25s 过渡
+ * @returns {void}
+ */
+function cf_apply(anim) {
+  cf_img.style.transition = anim ? "transform .25s ease" : "none";
+  cf_img.style.transform =
+    "translate(-50%,-50%) translate(" + cf_tx + "px," + cf_ty + "px) scale(" + cf_scale + ")";
+  cf_badge.textContent = cf_scale.toFixed(2) + "x";
+  cf_badge.className = "cf_zoom" + (cf_scale >= CF_MAX ? " cf_max" : "");
+}
+
+/**
+ * 动画缩放到目标倍率（双击用），锚定点击点 f
+ * @param {number} s 目标倍率
+ * @param {{x:number,y:number}|null} f 焦点（相对容器中心），null 则围绕图片中心
+ * @returns {void}
+ */
+function cf_zoomTo(s, f) {
+  if (f) {
+    cf_tx = f.x - (s / cf_scale) * (f.x - cf_tx);
+    cf_ty = f.y - (s / cf_scale) * (f.y - cf_ty);
+  }
+  cf_scale = s;
+  cf_clampT(true);
+}
+
+/* touchstart：区分单指（拖动/双击检测）与双指（捏合基准） */
+cf_viewer.addEventListener("touchstart", function (e) {
+  cf_measure();
+  if (e.touches.length === 1) {
+    var t = e.touches[0];
+    var now = Date.now();
+    /* 双击：300ms 内、位移 <30px 的第二次单击 */
+    if (now - cf_lastTap.t < 300 &&
+        Math.hypot(t.clientX - cf_lastTap.x, t.clientY - cf_lastTap.y) < 30) {
+      var r = cf_viewer.getBoundingClientRect();
+      var f = {
+        x: t.clientX - r.left - cf_cw / 2,
+        y: t.clientY - r.top - cf_ch / 2,
+      };
+      cf_zoomTo(cf_scale > 1 ? 1 : 2, f);   /* 1x ↔ 2x 切换 */
+      cf_lastTap.t = 0;
+      cf_drag = { x0: t.clientX, y0: t.clientY, t0x: cf_tx, t0y: cf_ty };
+      return;
+    }
+    cf_lastTap = { t: now, x: t.clientX, y: t.clientY };
+    cf_drag = { x0: t.clientX, y0: t.clientY, t0x: cf_tx, t0y: cf_ty };
+  } else if (e.touches.length === 2) {
+    var a = e.touches[0], b = e.touches[1];
+    cf_pinch = {
+      d0: Math.hypot(a.clientX - b.clientX, a.clientY - b.clientY),
+      s0: cf_scale, t0x: cf_tx, t0y: cf_ty,
+    };
+    cf_drag = null; cf_over = null;
+  }
+}, { passive: true });
+
+/* touchmove：双指按距离比例缩放（焦点锚定），单指拖动 */
+cf_viewer.addEventListener("touchmove", function (e) {
+  e.preventDefault();
+  if (e.touches.length >= 2 && cf_pinch) {
+    var a = e.touches[0], b = e.touches[1];
+    var d = Math.hypot(a.clientX - b.clientX, a.clientY - b.clientY);
+    var raw = cf_pinch.s0 * d / cf_pinch.d0;
+    /* 越界阻尼：出界部分只生效 30%，松手回弹到边界值 */
+    cf_over = null;
+    if (raw < CF_MIN)      { cf_scale = CF_MIN + (raw - CF_MIN) * 0.3; cf_over = CF_MIN; }
+    else if (raw > CF_MAX) { cf_scale = CF_MAX + (raw - CF_MAX) * 0.3; cf_over = CF_MAX; }
+    else                   { cf_scale = raw; }
+    /* 焦点 = 当前两指中点；套用锚定公式让中点下的图像纹丝不动 */
+    var r = cf_viewer.getBoundingClientRect();
+    var f = {
+      x: (a.clientX + b.clientX) / 2 - r.left - cf_cw / 2,
+      y: (a.clientY + b.clientY) / 2 - r.top - cf_ch / 2,
+    };
+    cf_tx = f.x - (cf_scale / cf_pinch.s0) * (f.x - cf_pinch.t0x);
+    cf_ty = f.y - (cf_scale / cf_pinch.s0) * (f.y - cf_pinch.t0y);
+    cf_apply(false);
+  } else if (e.touches.length === 1 && cf_drag) {
+    var t = e.touches[0];
+    var dx = t.clientX - cf_drag.x0, dy = t.clientY - cf_drag.y0;
+    if (cf_scale > 1) {                      /* 放大后自由拖动 */
+      cf_tx = cf_drag.t0x + dx;
+      cf_ty = cf_drag.t0y + dy;
+    } else {                                 /* 1x：橡皮筋阻尼，松手弹回 */
+      cf_tx = cf_drag.t0x + dx * 0.3;
+      cf_ty = cf_drag.t0y + dy * 0.3;
+    }
+    cf_apply(false);
+  }
+}, { passive: false });
+
+/* touchend：双指抬一指 → 无缝交接单指拖动；全部抬起 → 夹持回弹 */
+cf_viewer.addEventListener("touchend", function (e) {
+  if (e.touches.length === 1 && cf_pinch) {
+    cf_pinch = null; cf_over = null;
+    var t = e.touches[0];
+    cf_drag = { x0: t.clientX, y0: t.clientY, t0x: cf_tx, t0y: cf_ty };
+    cf_clampT(false);
+  } else if (e.touches.length === 0) {
+    cf_pinch = null; cf_drag = null;
+    if (cf_over !== null) { cf_scale = cf_over; cf_over = null; }
+    cf_clampT(true);   /* 越界回弹 + 边界夹持；1x 时自动归零居中 */
+  }
+}, { passive: true });
+
+/* 旋转屏幕 / 改变窗口：重新测量并夹持，缩放状态保留 */
+window.addEventListener("resize", function () {
+  cf_measure();
+  cf_clampT(false);
+});
+
+/* 图片加载完成后再测量一次（保证 naturalWidth 可用） */
+if (cf_img.complete) { cf_measure(); }
+else { cf_img.addEventListener("load", cf_measure); }
+</script>
+</body>
+</html>
