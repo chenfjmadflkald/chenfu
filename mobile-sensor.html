@@ -104,8 +104,8 @@
 
   <!-- 降级：设备不支持 -->
   <div class="cf_fallback" id="cfFallback">
-    <p>当前设备不支持，请用手机打开</p>
-    <small>devicemotion 无事件或数据为 null（桌面端 / 无传感器环境）</small>
+    <p id="cfFallbackMsg">当前设备不支持，请用手机打开</p>
+    <small id="cfFallbackSub">devicemotion 无事件或数据为 null（桌面端 / 无传感器环境）</small>
     <button class="cf_btn" id="cfFakeBtn">点我抽一次</button>
   </div>
 
@@ -117,7 +117,8 @@
     <b>①</b> 桌面浏览器 / 模拟器 / 无加速度芯片的设备根本不会带有效数据的 devicemotion 事件，页面若只认传感器就会永远"死"在那里——降级按钮让核心功能（抽菜谱）在任何设备都可用；<br>
     <b>②</b> Chrome 桌面端会触发 devicemotion 但 accelerationIncludingGravity 全为 null，必须判空而不是报错；<br>
     <b>③</b> iOS 13+ 出于隐私要求传感器 API 必须由用户手势触发 requestPermission()，拒绝授权后同样要落到降级方案；<br>
-    <b>④</b> 传感器 API 还要求 HTTPS（或 localhost），http 打开也会静默失败——降级是唯一兜底。
+    <b>④</b> 传感器 API 还要求安全上下文（HTTPS 或 localhost），用 http / file:// 打开时 iOS 会直接拒绝授权——降级是唯一兜底；<br>
+    <b>⑤</b> 微信内置浏览器（iOS）经常拦截传感器授权，需提示用户改用 Safari 打开。
     <h3>⚖️ accelerationIncludingGravity vs acceleration</h3>
     <b>accelerationIncludingGravity</b>：设备感受到的<b>总加速度 = 用户运动加速度 + 重力分量</b>。手机静置平放时它 ≈ {x:0, y:0, z:9.8}——z 轴那 9.8 就是重力；摇一摇看它，是因为重力基准让"晃动"信号更强、也更省一次滤波。<br>
     <b>acceleration</b>：系统<b>扣掉重力后的线性加速度</b>（陀螺仪/重力滤波补偿）。静置时 ≈ {0,0,0}，只反映真实的移动运动。<br>
@@ -144,12 +145,18 @@ var cf_now = document.getElementById("cfNow");
 var cf_bar = document.getElementById("cfBar");
 var cf_result = document.getElementById("cfResult");
 var cf_fallback = document.getElementById("cfFallback");
+var cf_fallbackMsg = document.getElementById("cfFallbackMsg");
+var cf_fallbackSub = document.getElementById("cfFallbackSub");
 var cf_fakeBtn = document.getElementById("cfFakeBtn");
 
 var cf_lastShake = 0;       /* 上次触发时间戳（冷却用） */
 var cf_sensorOk = false;    /* 是否收到过有效传感器数据 */
-var cf_gotEvent = false;    /* 是否收到过 devicemotion 事件（哪怕 null） */
 var cf_dishIdx = -1;        /* 上次抽中的菜，避免降级按钮连点重复 */
+var cf_listenerAdded = false;  /* devicemotion 监听是否已挂（防重复挂载） */
+var cf_isIOSPerm = typeof DeviceMotionEvent !== "undefined" &&
+                   typeof DeviceMotionEvent.requestPermission === "function";
+var cf_secureOk = window.isSecureContext === true;
+var cf_isWeChat = /MicroMessenger/i.test(navigator.userAgent);
 
 /* 8 道菜谱池 */
 var cf_dishes = [
@@ -196,6 +203,19 @@ function cf_pickDish(idx) {
 }
 
 /**
+ * 更新降级区文案并显示（不报错不白屏）
+ * 核心实现：主/次提示分开——主提示说"怎么办"，次提示给诊断依据
+ * @param {string} msg 主提示
+ * @param {string} sub 次提示（诊断信息：协议 / 错误名 / 环境限制）
+ * @returns {void}
+ */
+function cf_setFallback(msg, sub) {
+  cf_fallbackMsg.textContent = msg;
+  cf_fallbackSub.textContent = sub;
+  cf_fallback.classList.add("cf_show");
+}
+
+/**
  * 标记设备不支持：显示降级区，不报错不白屏
  * @returns {void}
  */
@@ -203,24 +223,61 @@ function cf_markUnsupported() {
   if (cf_sensorOk) { return; }
   cf_state.textContent = "设备不支持";
   cf_state.className = "cf_state";
-  cf_fallback.classList.add("cf_show");
+  cf_setFallback("当前设备不支持，请用手机打开",
+    "devicemotion 无事件或数据为 null（桌面端 / 无传感器环境）· 当前协议 " +
+    location.protocol.replace(":", ""));
 }
 
 /**
- * iOS 13+ 权限申请：必须由用户手势（点击按钮）触发
+ * 挂载 devicemotion 监听（带防重复保护，避免授权后重复挂载导致双倍触发）
+ * @returns {void}
+ */
+function cf_addMotionListener() {
+  if (cf_listenerAdded) { return; }
+  cf_listenerAdded = true;
+  window.addEventListener("devicemotion", cf_onMotion);
+}
+
+/**
+ * iOS 13+ 权限申请：必须由用户手势（点击按钮）同步触发
+ * 核心实现：requestPermission 在 click 处理器内同步调用；
+ *          授权成功 → 挂监听 + 3s 内无数据再给针对性提示；
+ *          拒绝/异常 → 把具体原因（Denied / NotAllowedError 等）写进降级区，
+ *          而不是笼统显示"设备不支持"，方便当场定位是哪个环节卡住
  * @returns {void}
  */
 function cf_requestIOSPermission() {
-  DeviceMotionEvent.requestPermission()
-    .then(function (state) {
-      if (state === "granted") {
-        window.addEventListener("devicemotion", cf_onMotion);
-        cf_state.textContent = "等待摇动…";
+  try {
+    var cf_p = DeviceMotionEvent.requestPermission();
+    Promise.resolve(cf_p).then(function (cf_st) {
+      if (cf_st === "granted") {
+        cf_addMotionListener();
+        cf_state.textContent = "已授权，摇一摇试试…";
+        cf_state.className = "cf_state cf_ok";
+        cf_fallback.classList.remove("cf_show");
+        /* 授权成功后 3s 仍无有效数据 → 针对性提示（多数是 http 打开） */
+        setTimeout(function () {
+          if (!cf_sensorOk) {
+            cf_setFallback("已授权但收不到传感器数据",
+              "十有八九是页面不是 HTTPS——iOS 只在安全上下文开放传感器，请用 https（如 GitHub Pages）或 localhost 打开；也可先用下方按钮抽一次");
+          }
+        }, 3000);
       } else {
-        cf_markUnsupported();   /* 用户拒绝 → 落到降级方案 */
+        cf_state.textContent = "授权被拒绝";
+        cf_setFallback("传感器权限被拒绝，无法摇一摇",
+          "可在 Safari 设置里重新允许运动与方向访问，或用下方「点我抽一次」");
       }
-    })
-    .catch(function () { cf_markUnsupported(); });
+    }).catch(function (cf_err) {
+      cf_state.textContent = "授权失败";
+      cf_setFallback("权限申请失败：" + (cf_err && cf_err.name ? cf_err.name : "未知错误"),
+        cf_secureOk ? "可再点一次授权按钮重试，或用下方「点我抽一次」"
+                    : "⚠️ 页面不是 HTTPS——iOS 只在安全上下文允许传感器，请改用 https 打开");
+    });
+  } catch (cf_err) {
+    cf_state.textContent = "授权失败";
+    cf_setFallback("权限申请异常：" + (cf_err && cf_err.name ? cf_err.name : "未知错误"),
+      "请确认用 Safari 打开且页面为 HTTPS，或用下方「点我抽一次」");
+  }
 }
 
 /**
@@ -231,7 +288,6 @@ function cf_requestIOSPermission() {
  * @returns {void}
  */
 function cf_onMotion(e) {
-  cf_gotEvent = true;
   var g = e.accelerationIncludingGravity;
   if (!g || g.x === null || g.y === null || g.z === null) { return; }
 
@@ -254,25 +310,31 @@ function cf_onMotion(e) {
   cf_pickDish(-1);
 }
 
-/* iOS 13+：requestPermission 存在就必须先由按钮申请权限 */
-if (typeof DeviceMotionEvent !== "undefined" &&
-    typeof DeviceMotionEvent.requestPermission === "function") {
+/* iOS 13+：requestPermission 存在就必须先由按钮申请权限；
+   显示"需要授权"引导而不是"设备不支持"，并预告 HTTPS / 微信两个坑 */
+if (cf_isIOSPerm) {
   cf_state.textContent = "需授权传感器";
   var cf_iosBtn = document.createElement("button");
   cf_iosBtn.className = "cf_btn";
   cf_iosBtn.textContent = "开启传感器权限";
   cf_iosBtn.addEventListener("click", cf_requestIOSPermission);
   cf_fallback.insertBefore(cf_iosBtn, cf_fakeBtn);
-  cf_fallback.classList.add("cf_show");
+  var cf_iosSub = cf_secureOk
+    ? "iOS 13+ 出于隐私要求，必须由用户点按钮授权 DeviceMotion 才能摇一摇"
+    : "⚠️ 当前页面不是 HTTPS——iOS 只在安全上下文允许传感器，请用 https（如 GitHub Pages）打开";
+  if (cf_isWeChat) { cf_iosSub += " · 微信内置浏览器可能拦截传感器，建议右上角 ··· 用 Safari 打开"; }
+  cf_setFallback("iPhone 摇一摇需要先授权传感器", cf_iosSub);
 } else if (typeof DeviceMotionEvent !== "undefined") {
-  window.addEventListener("devicemotion", cf_onMotion);
+  cf_addMotionListener();
 }
 
 /* 降级按钮：无传感器也能抽一次 */
 cf_fakeBtn.addEventListener("click", function () { cf_pickDish(cf_dishIdx); });
 
-/* 1.5s 内收不到事件 → 判定不支持（支持后此定时器无效） */
-setTimeout(function () { if (!cf_sensorOk) { cf_markUnsupported(); } }, CF_DETECT_MS);
+/* 1.5s 内收不到事件 → 判定不支持（iOS 授权流有自己的引导文案，不抢提示） */
+setTimeout(function () {
+  if (!cf_sensorOk && !cf_isIOSPerm) { cf_markUnsupported(); }
+}, CF_DETECT_MS);
 </script>
 </body>
 </html>
