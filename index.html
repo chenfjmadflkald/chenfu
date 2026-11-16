@@ -89,6 +89,12 @@
 		footer { padding: 28px 0 35px; color: var(--muted); border-top: 1px solid var(--line); font-size: 13px; }
 		footer .wrap { display: flex; justify-content: space-between; gap: 20px; }
 		footer p { margin: 5px 0; }
+		/* 第五板块 · 真机演示视频区 */
+		.cf_vids { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-top: 18px; }
+		.cf_vid { background: var(--white); border: 1px solid var(--line); border-radius: 8px; padding: 16px; box-shadow: 0 8px 25px rgba(36,55,103,.05); }
+		.cf_vid h3 { margin: 0 0 4px; font-size: 17px; }
+		.cf_vid p { margin: 0 0 12px; color: var(--muted); font-size: 13px; }
+		.cf_vid video { display: block; width: 100%; border-radius: 6px; background: #000; max-height: 56vh; }
 		@media (max-width: 760px) {
 			header { padding-bottom: 70px; clip-path: polygon(0 0, 100% 0, 100% 94%, 78% 100%, 0 96%); }
 			.wrap { width: min(100% - 28px, 620px); }
@@ -98,6 +104,7 @@
 			.intro { display: block; }
 			.intro-note { margin-top: 12px; }
 			.catalog, .prompt { grid-template-columns: 1fr; }
+			.cf_vids { grid-template-columns: 1fr; }
 			.prompt { gap: 20px; margin-top: 46px; padding: 25px; }
 			footer .wrap { display: block; }
 		}
@@ -251,6 +258,19 @@
 						<p>mobile-sensor练习，devicemotion合成加速度阈值18判定摇动+1.5s冷却防重复、随机抽菜弹出动画、无传感器环境降级按钮、iOS权限申请、实时加速度能量条。</p>
 						<span class="card-link">进入网页 <span aria-hidden="true">→</span></span>
 					</a>
+				</div>
+				<!-- 第五板块 · 任务三/任务四真机演示视频（手机实拍） -->
+				<div class="cf_vids">
+					<div class="cf_vid">
+						<h3>任务三 · 图片查看器 真机演示</h3>
+						<p>双指捏合缩放 → 双击 1x/2x 切换 → 放大后拖动 → 缩回居中</p>
+						<video controls playsinline preload="metadata" src="media/cf_t3_zoom_demo.mp4"></video>
+					</div>
+					<div class="cf_vid">
+						<h3>任务四 · 摇一摇 真机演示</h3>
+						<p>摇一摇手机 → 超阈值 18 → 随机抽出今日菜谱（1.5s 冷却）</p>
+						<video controls playsinline preload="metadata" src="media/cf_t4_sensor_demo.mp4"></video>
+					</div>
 				</div>
 			</section>
 			<section class="prompt" id="prompt" aria-labelledby="prompt-title">
