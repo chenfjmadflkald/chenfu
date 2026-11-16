@@ -74,6 +74,10 @@
 
   .cf_back{text-align:center;margin-top:22px}
   .cf_back a{display:inline-block;text-decoration:none;color:#cfd6e4;font-size:13.5px;font-weight:bold;background:#1c1f27;border:1px solid #2a2f3c;border-radius:999px;padding:9px 24px}
+  .cf_video{margin-top:18px;background:#1c1f27;border:1px solid #2a2f3c;border-radius:14px;padding:16px}
+  .cf_video h2{font-size:15.5px;color:#e8ecf6;margin-bottom:10px}
+  .cf_video video{display:block;width:100%;max-height:62vh;border-radius:10px;background:#000}
+  .cf_video p{font-size:12.5px;color:#8b93a7;margin-top:8px;line-height:1.8}
 </style>
 </head>
 <body>
@@ -123,6 +127,12 @@
     <b>accelerationIncludingGravity</b>：设备感受到的<b>总加速度 = 用户运动加速度 + 重力分量</b>。手机静置平放时它 ≈ {x:0, y:0, z:9.8}——z 轴那 9.8 就是重力；摇一摇看它，是因为重力基准让"晃动"信号更强、也更省一次滤波。<br>
     <b>acceleration</b>：系统<b>扣掉重力后的线性加速度</b>（陀螺仪/重力滤波补偿）。静置时 ≈ {0,0,0}，只反映真实的移动运动。<br>
     一句话：前者"含重力的原始读数"，后者"去重力后的净加速度"；本页用前者 + 阈值 18（静置 ≈9.8，晃动瞬时可达 20+，阈值好定）。
+  </div>
+
+  <div class="cf_video">
+    <h2>任务四 · 真机演示视频</h2>
+    <video controls playsinline preload="metadata" src="media/cf_t4_sensor_demo.mp4"></video>
+    <p>手机实拍：摇一摇手机 → 合成加速度超过阈值 18 → 随机抽出今日菜谱（1.5 秒冷却内重复摇动不重复触发）。</p>
   </div>
 
   <div class="cf_back"><a href="index.html">← 返回课程目录</a></div>
