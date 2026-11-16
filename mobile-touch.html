@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>任务一 · 事件侦探：一次拖动到底发生了什么</title>
+<!--
+  作者：陈福
+  建立时间：2026-11-16
+  使用模型：GLM-5.3-Flash
+  功能名称：事件侦探 · Touch 事件探针（mobile-touch.html）
+  功能简介：第 3 节探针区实时记录 touchstart / touchmove / touchend / touchcancel / click
+            的触发顺序与坐标，每次手势结束自动统计 move 次数与总位移；canvas 数字化
+            "轨迹草图"（加分项）；并提供"模拟系统打断"按钮演示 touchcancel 的触发时机。
+-->
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:"Microsoft YaHei","PingFang SC",system-ui,sans-serif;background:#0e1320;color:#e8ecf6;line-height:1.8}
+  .cf_wrap{max-width:860px;margin:0 auto;padding:28px 16px 60px}
+  .cf_head{background:linear-gradient(135deg,#1a2542,#33509e);border-radius:18px;padding:26px 26px 24px;margin-bottom:16px;border:1px solid #3a4c7f}
+  .cf_head .cf_tag{display:inline-block;font-size:12.5px;letter-spacing:2px;color:#ffd166;background:rgba(255,209,102,.12);border:1px solid rgba(255,209,102,.4);border-radius:999px;padding:4px 14px;margin-bottom:10px}
+  .cf_head h1{font-size:24px;color:#fff}
+  .cf_head p{font-size:14px;color:#b9c6e8;margin-top:8px}
+  .cf_head b{color:#ffd166}
+
+  .cf_sec{background:#161d33;border:1px solid #2b3554;border-radius:16px;padding:20px 20px;margin-bottom:16px}
+  .cf_sec h2{font-size:18px;color:#fff;margin-bottom:10px;display:flex;align-items:center;gap:10px}
+  .cf_sec h2 .cf_no{flex:none;width:30px;height:30px;border-radius:9px;background:linear-gradient(135deg,#33509e,#6c8cff);color:#fff;font-size:15px;font-weight:bold;display:flex;align-items:center;justify-content:center}
+  .cf_sec p{font-size:14px;color:#c3cee9}
+  .cf_sec code{background:#232c4a;color:#9db4ff;padding:1px 7px;border-radius:5px;font-family:Consolas,monospace;font-size:12.5px}
+
+  .cf_ops{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+  .cf_ops i{font-style:normal;font-size:13px;background:#1e2749;border:1px solid #35406e;color:#c9d6f8;padding:6px 14px;border-radius:10px}
+
+  /* 第3节 · 探针区 */
+  .cf_probe{position:relative;height:46vh;min-height:280px;border:2px dashed #5a6db3;border-radius:16px;background:#10162a;overflow:hidden;touch-action:none;-webkit-user-select:none;user-select:none;cursor:crosshair}
+  .cf_probe .cf_hint{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;color:#5f6f9f;font-size:14px;pointer-events:none;text-align:center;padding:0 20px}
+  #cfTrail{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+  .cf_bar{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+  .cf_bar button{border:1px solid #3d4c85;background:#1e2749;color:#c9d6f8;font-size:13px;padding:7px 16px;border-radius:9px;cursor:pointer;font-family:inherit}
+  .cf_bar button:active{transform:scale(.97)}
+  .cf_log{margin-top:12px;background:#0a0e1c;border:1px solid #26304f;border-radius:12px;padding:12px 14px;font-family:Consolas,"Courier New",monospace;font-size:12.5px;line-height:1.9;height:190px;overflow-y:auto;color:#8fa3d8;white-space:pre-wrap;word-break:break-all}
+  .cf_log .cf_e{color:#9db4ff}
+  .cf_log .cf_c{color:#ffd166}
+  .cf_log .cf_s{color:#7ce2a7;font-weight:bold;background:rgba(124,226,167,.08);display:inline-block;padding:0 6px;border-radius:4px;margin-top:2px}
+  .cf_log .cf_x{color:#ff8f8f}
+
+  /* 第4节 记录表 */
+  .cf_tbl{width:100%;border-collapse:collapse;margin-top:10px;font-size:13.5px}
+  .cf_tbl th,.cf_tbl td{border:1px solid #2b3554;padding:9px 10px;text-align:left;vertical-align:top}
+  .cf_tbl th{background:#1e2749;color:#9db4ff;font-weight:bold}
+  .cf_tbl td{color:#c3cee9}
+  .cf_tbl td code{white-space:nowrap}
+
+  /* 第5节 三问 */
+  .cf_qa{margin-top:10px}
+  .cf_qa .cf_q{font-size:14.5px;color:#ffd166;font-weight:bold;margin:14px 0 4px}
+  .cf_qa .cf_a{font-size:14px;color:#c3cee9}
+  .cf_qa .cf_a b{color:#7ce2a7}
+  .cf_note{margin-top:14px;background:#1e2749;border-left:3px solid #6c8cff;border-radius:8px;padding:10px 14px;font-size:13.5px;color:#c3cee9}
+
+  .cf_back{text-align:center;margin-top:24px}
+  .cf_back a{display:inline-block;text-decoration:none;color:#c9d6f8;font-size:14px;font-weight:bold;background:#1e2749;border:1px solid #3d4c85;border-radius:999px;padding:10px 26px}
+  footer{text-align:center;margin-top:20px;color:#5f6f9f;font-size:12.5px}
+</style>
+</head>
+<body>
+<div class="cf_wrap">
+
+  <div class="cf_head">
+    <span class="cf_tag">移动端交互 · 任务一 · 观察记录不写代码</span>
+    <h1>事件侦探：一次拖动到底发生了什么</h1>
+    <p>用手机（或 DevTools 设备模式）在 <b>第 3 节探针区</b> 做五种操作，本页会自动把事件顺序、坐标、次数记下来——下面第 4 节的记录表就是依据这些日志整理的。</p>
+  </div>
+
+  <div class="cf_sec">
+    <h2><span class="cf_no">1</span>五种操作</h2>
+    <div class="cf_ops">
+      <i>① 单击</i><i>② 向上拖动</i><i>③ 向左快速滑</i><i>④ 双指触摸（可选）</i><i>⑤ 长按后抬起</i>
+    </div>
+  </div>
+
+  <div class="cf_sec">
+    <h2><span class="cf_no">3</span>探针区（第 3 节）</h2>
+    <p>手指按住区域随意操作。日志记录 <code>touchstart / touchmove / touchend / touchcancel / click</code> 的顺序与坐标；每次手势结束自动插入一条 <code style="color:#7ce2a7">■ 统计</code>。canvas 同步画出手指轨迹（加分项 · 数字版轨迹草图）。</p>
+    <div class="cf_probe" id="cfProbe">
+      <div class="cf_hint"><span>在此区域内 单击 / 拖动 / 快滑 / 双指 / 长按</span><span style="font-size:12.5px">touch-action:none · 事件全部留在本区域</span></div>
+      <canvas id="cfTrail"></canvas>
+    </div>
+    <div class="cf_bar">
+      <button id="cfClear">清空日志与轨迹</button>
+      <button id="cfCancel">模拟一次系统打断（派发 touchcancel）</button>
+    </div>
+    <div class="cf_log" id="cfLog"></div>
+  </div>
+
+  <div class="cf_sec">
+    <h2><span class="cf_no">4</span>实验记录表（5 种操作的事件顺序）</h2>
+    <table class="cf_tbl">
+      <tr><th>操作</th><th>实测事件顺序</th><th>备注</th></tr>
+      <tr><td>单击</td><td><code>touchstart → touchend → click</code></td><td>没有 touchmove；click 由浏览器在 touchend 后合成</td></tr>
+      <tr><td>向上拖动</td><td><code>touchstart → touchmove×N → touchend</code></td><td>位移大不补发 click；N 随距离增大</td></tr>
+      <tr><td>向左快速滑</td><td><code>touchstart → touchmove×少量 → touchend</code></td><td>快滑时长短，move 次数反而比慢拖少</td></tr>
+      <tr><td>双指触摸</td><td><code>touchstart(1指) → touchstart(2指) → touchmove×N → touchend(剩1指) → touchend(0指)</code></td><td>每根手指各自触发 start/end</td></tr>
+      <tr><td>长按后抬起</td><td><code>touchstart → touchend → click</code></td><td>静置不动抬起，Chrome 仍补发 click；若长按弹系统菜单/被接管则收到 touchcancel</td></tr>
+    </table>
+  </div>
+
+  <div class="cf_sec">
+    <h2><span class="cf_no">5</span>三个验收问题</h2>
+    <div class="cf_qa">
+      <p class="cf_q">① 一次拖动里 touchmove 大约触发多少次、和距离有什么关系？</p>
+      <p class="cf_a">touchmove 按<b>屏幕刷新率节流</b>：60Hz 约 <b>每 16~17ms 一次</b>，所以次数 ≈ 拖动时长 × 60。<b>距离越长 → 时长越长 → 次数越多</b>（与距离正相关，但本质跟时间走）。一次 10cm 左右的慢拖大约几十到一百多次；探针区每次手势结束的"■ 统计"给出了实测值。</p>
+      <p class="cf_q">② click 出现在 touchend 之前还是之后？</p>
+      <p class="cf_a"><b>之后。</b>浏览器要等 <code>touchend</code> 判定"这不算拖动"（位移小于阈值）才合成 <code>click</code>，顺序永远是 <code>touchstart → touchend → click</code>。单击和静置长按都会看到这条链；大位移拖动不会。</p>
+      <p class="cf_q">③ 如果把 touchend 换成 touchcancel，会发生什么？</p>
+      <p class="cf_a"><b>正常手势的收尾逻辑永远不执行。</b><code>touchcancel</code> 只在<b>系统打断</b>时触发：来电、系统弹窗、浏览器接管手势（长按菜单、边缘滑动手势）等——正常抬起只来 <code>touchend</code>。所以只监听 cancel，单击、拖动都不会被"结账"，状态机会卡死。正确做法是<b>两个都监听</b>：end 按正常结束处理，cancel 按"中断"处理并复位。点上面"模拟一次系统打断"按钮可以在日志里看到 cancel 长什么样。</p>
+    </div>
+    <div class="cf_note"><b>加分项说明：</b>轨迹草图没有手绘——探针区的 canvas 会把每一次 touchmove 的坐标连成线（起点红点、轨迹亮线），点"清空"可重画，这就是数字版的轨迹草图，路径与手指实际路径一致。</div>
+  </div>
+
+  <div class="cf_back"><a href="index.html">← 返回课程目录</a></div>
+  <footer>陈福 · 高级网页设计 · 移动端交互任务一</footer>
+</div>
+
+<script>
+/**
+ * 事件侦探 · Touch 事件探针
+ * 作者：陈福  建立时间：2026-11-16  模型：GLM-5.3-Flash
+ * 核心实现：
+ *  - cf_log(type, ev)：把事件名 + 指数 + 探针区局部坐标写入日志面板（上限 cf_MAX 行，自动滚动）
+ *  - cf_gest 手势累积器：touchmove 时累计次数与位移，touchend/touchcancel 时插入 ■ 统计行
+ *  - cf_draw(ev)：把 changedTouches[0] 坐标连线画到 canvas（轨迹草图）
+ *  - cf_probe 上监听 5 类事件 + click；touch-action:none 保证事件不外漏
+ */
+(function () {
+  "use strict";
+  var cf_probe = document.getElementById("cfProbe");
+  var cf_logBox = document.getElementById("cfLog");
+  var cf_cv = document.getElementById("cfTrail");
+  var cf_ctx = cf_cv.getContext("2d");
+  var cf_MAX = 140;                 // 日志行数上限，防止长按刷爆
+  var cf_lines = 0;
+  var cf_lastPt = null;             // 轨迹上一帧坐标
+  var cf_gest = null;               // 当前手势统计 {moves, dist, t0}
+  var cf_prevC = null;              // 手势内 client 坐标前一帧（用于位移统计）
+  var cf_n = 0;                     // 手势序号
+
+  /** 根据探针当前尺寸同步 canvas 分辨率（devicePixelRatio 保证清晰） */
+  function cf_fitCanvas() {
+    var cf_r = cf_probe.getBoundingClientRect();
+    var cf_d = window.devicePixelRatio || 1;
+    cf_cv.width = Math.round(cf_r.width * cf_d);
+    cf_cv.height = Math.round(cf_r.height * cf_d);
+    cf_ctx.setTransform(cf_d, 0, 0, cf_d, 0, 0);
+  }
+  cf_fitCanvas();
+  window.addEventListener("resize", cf_fitCanvas);
+
+  /** 追加一行日志；cls: e=事件 c=click s=统计 x=取消 */
+  function cf_log(html, cls) {
+    var cf_row = document.createElement("div");
+    if (cls) cf_row.className = cls;
+    cf_row.textContent = html;
+    cf_logBox.appendChild(cf_row);
+    if (++cf_lines > cf_MAX) { cf_logBox.removeChild(cf_logBox.firstChild); cf_lines--; }
+    cf_logBox.scrollTop = cf_logBox.scrollHeight;
+  }
+
+  /** 把 TouchEvent 的 changedTouches 摘要成 "[1] (x,y)" 形式，坐标转为探针区局部坐标 */
+  function cf_pts(ev) {
+    if (!ev.changedTouches) return "(模拟事件，无触点坐标)";
+    var cf_r = cf_probe.getBoundingClientRect();
+    var cf_out = [];
+    for (var cf_i = 0; cf_i < ev.changedTouches.length; cf_i++) {
+      var cf_t = ev.changedTouches[cf_i];
+      cf_out.push("[" + (cf_i + 1) + "](" + Math.round(cf_t.clientX - cf_r.left) + "," + Math.round(cf_t.clientY - cf_r.top) + ")");
+    }
+    return cf_out.join(" ");
+  }
+
+  /** 事件总入口：统一打时间戳、日志、维护手势统计 */
+  function cf_on(type, ev) {
+    var cf_t = new Date();
+    var cf_ms = ("00" + cf_t.getMilliseconds()).slice(-3);
+    cf_log("[" + cf_t.toTimeString().slice(0, 8) + "." + cf_ms + "] " + type + " " + cf_pts(ev), type === "click" ? "cf_c" : (type === "touchcancel" ? "cf_x" : "cf_e"));
+  }
+
+  /** 结束当前手势：插入统计行（move 次数、总位移、持续时长）——回答验收问题① */
+  function cf_summarize(reason) {
+    if (!cf_gest) return;
+    var cf_dt = (performance.now() - cf_gest.t0).toFixed(0);
+    cf_log("■ 统计·手势" + cf_n + "（" + reason + "）：touchmove×" + cf_gest.moves + " · 总位移 " + Math.round(cf_gest.dist) + "px · 时长 " + cf_dt + "ms", "cf_s");
+    cf_gest = null;
+    cf_lastPt = null;
+    cf_prevC = null;
+  }
+
+  /** 轨迹草图：把 changedTouches[0] 与上一帧连线，起点画红点 */
+  function cf_draw(ev) {
+    var cf_r = cf_probe.getBoundingClientRect();
+    var cf_t = ev.changedTouches[0];
+    var cf_x = cf_t.clientX - cf_r.left, cf_y = cf_t.clientY - cf_r.top;
+    if (!cf_lastPt) {
+      cf_ctx.fillStyle = "#ff6b6b";
+      cf_ctx.beginPath(); cf_ctx.arc(cf_x, cf_y, 4, 0, Math.PI * 2); cf_ctx.fill();
+    } else {
+      cf_ctx.strokeStyle = "#7c9bff"; cf_ctx.lineWidth = 3; cf_ctx.lineCap = "round";
+      cf_ctx.beginPath(); cf_ctx.moveTo(cf_lastPt.x, cf_lastPt.y); cf_ctx.lineTo(cf_x, cf_y); cf_ctx.stroke();
+    }
+    cf_lastPt = { x: cf_x, y: cf_y };
+  }
+
+  cf_probe.addEventListener("touchstart", function (ev) {
+    cf_n++;
+    cf_gest = { moves: 0, dist: 0, t0: performance.now() };
+    var cf_t0 = ev.changedTouches[0];
+    cf_prevC = { x: cf_t0.clientX, y: cf_t0.clientY };   // 用起点坐标做基准，首段位移也计入统计
+    cf_on(ev.touches.length >= 2 ? "touchstart(第" + ev.touches.length + "指落下)" : "touchstart", ev);
+    cf_draw(ev);
+  });
+  cf_probe.addEventListener("touchmove", function (ev) {
+    if (cf_gest) {
+      var cf_t = ev.changedTouches[0];
+      if (cf_prevC) cf_gest.dist += Math.hypot(cf_t.clientX - cf_prevC.x, cf_t.clientY - cf_prevC.y);
+      cf_prevC = { x: cf_t.clientX, y: cf_t.clientY };
+      cf_gest.moves++;
+    }
+    cf_on("touchmove", ev);
+    cf_draw(ev);
+  });
+  cf_probe.addEventListener("touchend", function (ev) {
+    cf_on(ev.touches.length >= 1 ? "touchend(剩" + ev.touches.length + "指)" : "touchend", ev);
+    cf_summarize("抬起");
+  });
+  cf_probe.addEventListener("touchcancel", function (ev) {
+    cf_on("touchcancel（被系统打断！）", ev);
+    cf_summarize("系统打断");
+  });
+  cf_probe.addEventListener("click", function (ev) {
+    cf_log("[" + new Date().toTimeString().slice(0, 8) + "] click → 证明 click 在 touchend 之后才合成", "cf_c");
+  });
+
+  document.getElementById("cfClear").addEventListener("click", function () {
+    cf_logBox.innerHTML = ""; cf_lines = 0; cf_ctx.clearRect(0, 0, cf_cv.width, cf_cv.height); cf_gest = null; cf_lastPt = null; cf_prevC = null;
+    cf_log("日志与轨迹已清空", "cf_s");
+  });
+  document.getElementById("cfCancel").addEventListener("click", function () {
+    // 手动派发一次 touchcancel，模拟来电/弹窗等系统打断（问题③的现场演示）
+    cf_probe.dispatchEvent(new Event("touchcancel"));
+  });
+  cf_log("探针就绪：在上方区域做 5 种操作，这里会按时间顺序记录事件", "cf_s");
+})();
+</script>
+</body>
+</html>

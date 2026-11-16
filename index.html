@@ -114,6 +114,7 @@
 					</a>
 					<nav aria-label="页面导航">
 						<a href="#catalog">课程目录</a>
+						<a href="#mobile-lab">移动端</a>
 						<a href="#prompt">本次要求</a>
 					</nav>
 				</div>
@@ -214,23 +215,38 @@
 						<p>cf_prompt.html 展示每一轮对话的双向内容：用户提示词 + 我的回复简述，含 Swiper 任务一~四两轮对照的原始提示词与 AI 产物代码。</p>
 						<span class="card-link">进入网页 <span aria-hidden="true">→</span></span>
 					</a>
-					<!-- 第13模块 中华美食卡片（移动端手势切换） -->
+				</div>
+			</section>
+			<!-- 移动端交互四关 · 独立板块（今日四个任务集中展示） -->
+			<section id="mobile-lab" aria-labelledby="mobile-title">
+				<div class="intro">
+					<div>
+						<p class="section-label">MOBILE LAB / 02</p>
+						<h2 id="mobile-title">移动端交互 · 四关挑战</h2>
+					</div>
+					<p class="intro-note">Touch 手势、多指变换、传感器与事件机制，建议用手机打开体验。</p>
+				</div>
+				<div class="catalog">
+					<a class="card ready" href="mobile-touch.html">
+						<span class="card-number">M1 / PROBE</span>
+						<h3>事件侦探</h3>
+						<p>mobile-touch练习，探针区记录 touchstart/move/end/cancel/click 触发顺序与坐标，自动统计 move 次数与位移，canvas 数字轨迹草图。</p>
+						<span class="card-link">进入网页 <span aria-hidden="true">→</span></span>
+					</a>
 					<a class="card ready" href="mobile-gesture.html">
-						<span class="card-number">13 / TOUCH</span>
+						<span class="card-number">M2 / TOUCH</span>
 						<h3>中华美食卡片</h3>
 						<p>mobile-gesture练习，touchstart/touchend手势切换4道菜卡片：阈值40px防误触、0.3s过渡+300ms冷却防连滑、touch-action:pan-y保留纵向滚动、边界提示文字。</p>
 						<span class="card-link">进入网页 <span aria-hidden="true">→</span></span>
 					</a>
-					<!-- 第14模块 图片查看器（多指手势 · 变换 · 状态管理） -->
 					<a class="card ready" href="mobile-zoom.html">
-						<span class="card-number">14 / ZOOM</span>
+						<span class="card-number">M3 / ZOOM</span>
 						<h3>图片查看器</h3>
 						<p>mobile-zoom练习，双指捏合缩放1x~4x（两指中点锚定）、双击1x/2x切换0.25s过渡、单指拖动+边界夹持回弹、旋转屏幕不丢状态、实时倍率指示器。</p>
 						<span class="card-link">进入网页 <span aria-hidden="true">→</span></span>
 					</a>
-					<!-- 第15模块 摇一摇今日菜谱（devicemotion传感器） -->
 					<a class="card ready" href="mobile-sensor.html">
-						<span class="card-number">15 / SENSOR</span>
+						<span class="card-number">M4 / SENSOR</span>
 						<h3>摇一摇 · 今日菜谱</h3>
 						<p>mobile-sensor练习，devicemotion合成加速度阈值18判定摇动+1.5s冷却防重复、随机抽菜弹出动画、无传感器环境降级按钮、iOS权限申请、实时加速度能量条。</p>
 						<span class="card-link">进入网页 <span aria-hidden="true">→</span></span>
