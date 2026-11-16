@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>移动端四关 · 合一演练 · 陈福</title>
+<!--
+  作者：陈福
+  建立时间：2026-11-16
+  使用模型：GLM-5.3-Flash
+  功能名称：移动端四关合一演练（第五关 · 汇总页）
+  功能简介：用 iframe 把任务一~任务四四个移动端页面原样合进一页，
+            各页样式与 JS 互不干扰；作为 index 第五板块的第五张卡片入口。
+-->
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:"Microsoft YaHei","PingFang SC",system-ui,sans-serif;background:#f6f8fc;color:#1f2937}
+  .cf_wrap{max-width:1000px;margin:0 auto;padding:36px 18px 56px}
+
+  /* 头部 */
+  .cf_head{background:linear-gradient(135deg,#0f2b5b,#1d5bbf);border-radius:18px;padding:30px 32px;color:#fff;margin-bottom:26px;box-shadow:0 12px 30px rgba(15,43,91,.3)}
+  .cf_head .cf_badge{display:inline-block;padding:5px 14px;border-radius:999px;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.3);font-size:13px;letter-spacing:2px;margin-bottom:12px}
+  .cf_head h1{font-size:26px;letter-spacing:1px}
+  .cf_head h1 b{color:#ffd166}
+  .cf_head p{margin-top:10px;font-size:14px;color:#d9e3f5;line-height:2}
+
+  /* 每一关的框 */
+  .cf_stage{background:#fff;border:1px solid #e8ecf5;border-radius:18px;padding:20px 20px 24px;margin-bottom:26px;box-shadow:0 4px 14px rgba(31,41,55,.06)}
+  .cf_stage_head{display:flex;align-items:center;gap:12px;margin-bottom:12px;flex-wrap:wrap}
+  .cf_stage_head .cf_no{flex:none;width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,#0f2b5b,#1d5bbf);color:#fff;font-size:16px;font-weight:bold;display:flex;align-items:center;justify-content:center}
+  .cf_stage_head h2{font-size:18px;color:#111827}
+  .cf_stage_head small{display:block;font-weight:normal;color:#9ca3af;font-size:12.5px;margin-top:2px}
+  .cf_stage_head .cf_open{margin-left:auto;font-size:12.5px;color:#1d4ed8;background:#eef4ff;border:1px solid #c7d8f8;border-radius:999px;padding:4px 12px;text-decoration:none}
+  .cf_frame{width:100%;height:740px;border:1px solid #dfe6f3;border-radius:12px;background:#fff}
+  @media(max-width:640px){.cf_frame{height:640px}.cf_head{padding:24px 20px}.cf_head h1{font-size:21px}}
+
+  .cf_back{text-align:center;margin-top:10px}
+  .cf_back a{display:inline-block;text-decoration:none;color:#0f2b5b;font-size:14px;font-weight:bold;background:#fff;border:1px solid #dbe4ff;border-radius:999px;padding:10px 26px;transition:transform .2s,box-shadow .2s}
+  .cf_back a:hover{transform:translateY(-2px);box-shadow:0 8px 18px rgba(15,43,91,.15)}
+  footer{text-align:center;margin-top:26px;color:#9ca3af;font-size:13px;line-height:2}
+</style>
+</head>
+<body>
+<div class="cf_wrap">
+
+  <div class="cf_head">
+    <span class="cf_badge">第 五 关 · 四 关 合 一</span>
+    <h1>移动端交互 · <b>合一演练台</b></h1>
+    <p>任务一 ~ 任务四四个页面原样合并：事件侦探 → 美食卡片 → 图片查看器 → 摇一摇。
+    每一关都是完整可交互的真身（iframe 内嵌，样式与脚本互不干扰），建议用手机或 DevTools 设备模式体验。</p>
+  </div>
+
+  <!-- 第一关 · 事件侦探 -->
+  <div class="cf_stage">
+    <div class="cf_stage_head">
+      <span class="cf_no">1</span>
+      <h2>事件侦探<small>mobile-touch · touchstart/move/end/cancel/click 顺序与统计</small></h2>
+      <a class="cf_open" href="mobile-touch.html" target="_blank">单独打开 ↗</a>
+    </div>
+    <iframe class="cf_frame" src="mobile-touch.html" loading="lazy" title="任务一 事件侦探"></iframe>
+  </div>
+
+  <!-- 第二关 · 美食卡片 -->
+  <div class="cf_stage">
+    <div class="cf_stage_head">
+      <span class="cf_no">2</span>
+      <h2>中华美食卡片<small>mobile-gesture · 滑动切换 + 40px 阈值 + 300ms 冷却</small></h2>
+      <a class="cf_open" href="mobile-gesture.html" target="_blank">单独打开 ↗</a>
+    </div>
+    <iframe class="cf_frame" src="mobile-gesture.html" loading="lazy" title="任务二 中华美食卡片"></iframe>
+  </div>
+
+  <!-- 第三关 · 图片查看器 -->
+  <div class="cf_stage">
+    <div class="cf_stage_head">
+      <span class="cf_no">3</span>
+      <h2>图片查看器<small>mobile-zoom · 双指缩放 1x~4x + 双击切换 + 拖动回弹</small></h2>
+      <a class="cf_open" href="mobile-zoom.html" target="_blank">单独打开 ↗</a>
+    </div>
+    <iframe class="cf_frame" src="mobile-zoom.html" loading="lazy" title="任务三 图片查看器"></iframe>
+  </div>
+
+  <!-- 第四关 · 摇一摇 -->
+  <div class="cf_stage">
+    <div class="cf_stage_head">
+      <span class="cf_no">4</span>
+      <h2>摇一摇 · 今日菜谱<small>mobile-sensor · devicemotion 阈值 18 + 1.5s 冷却 + 降级方案</small></h2>
+      <a class="cf_open" href="mobile-sensor.html" target="_blank">单独打开 ↗</a>
+    </div>
+    <iframe class="cf_frame" src="mobile-sensor.html" loading="lazy" title="任务四 摇一摇"></iframe>
+  </div>
+
+  <div class="cf_back"><a href="index.html">← 返回课程目录</a></div>
+  <footer>高级网页设计 · 移动端四关合一 · 陈福</footer>
+</div>
+</body>
+</html>
